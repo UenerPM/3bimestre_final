@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Verificar status do cookie</title>
+  <link rel="stylesheet" href="/common/header.css">
   <style>
     body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
     button { padding: .6rem 1rem; border: 0; border-radius: .5rem; cursor: pointer; background: #0ea5e9; color: white; }
@@ -13,6 +14,7 @@
   </style>
 </head>
 <body>
+  <script src="/common/header.js" defer></script>
   <h1>Status do cookie <code>usuarioLogado</code></h1>
   <p>Esse teste vai chamar a rota do backend que verifica o cookie <code>httpOnly</code>.</p>
 
@@ -28,10 +30,10 @@
 
       try {
         // Ajuste a URL se o backend estiver em outra porta
-        const url = 'http://localhost:3001/verificaSeUsuarioEstaLogado';
+        const url = 'http://localhost:3001/login/verificaSeUsuarioEstaLogado';
 
         const res = await fetch(url, {
-          method: 'GET',
+          method: 'POST',
           credentials: 'include' // <- ESSENCIAL para enviar cookies httpOnly
         });
 

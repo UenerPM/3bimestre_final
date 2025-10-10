@@ -3,31 +3,23 @@ const { Pool } = require('pg');
 // Configuração da conexão com o banco de dados PostgreSQL
 const dbConfig = {
   host: 'localhost',
-  port: 5432, // Porta padrão do PostgreSQL
-   user: 'postgres', // Usuário padrão do PostgreSQL (ajuste conforme necessário)
-   password: '21514518',
-  
-  //user: 'postgres', // Usuário padrão do PostgreSQL (ajuste conforme necessário)
-  //password: 'postgres',
-
-  database: 'avap',
-  // Configurações específicas do PostgreSQL
-  ssl: false, // Defina como true se usar SSL
-  idleTimeoutMillis: 30000, // Timeout para conexões ociosas
-  connectionTimeoutMillis: 2000, // Timeout para estabelecer conexão
+  port: 5432,
+  user: 'postgres',
+  password: '21514518',
+  database: 'avap2',
+  ssl: false,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
 };
 
-const schema = 'public'; // Defina o schema padrão
+// Search path a ser aplicado nas conexões (padroniza schema usado nas queries)
+const searchPath = 'peer, public';
 
 
 // Pool de conexões para melhor performance
 const pool = new Pool({
   ...dbConfig,
-  max: 10, // Máximo de conexões no pool (equivalente ao connectionLimit do MySQL)
-  min: 0,  // Mínimo de conexões no pool
-  idle: 10000, // Tempo em ms antes de fechar uma conexão ociosa
-  acquire: 30000, // Tempo máximo em ms para tentar obter uma conexão
-  evict: 1000 // Intervalo em ms para verificar conexões que devem ser removidas
+  max: 10,
 });
 
 // Tratamento de erros do pool
@@ -42,9 +34,8 @@ const testConnection = async () => {
     const client = await pool.connect();
     console.log('Conectado ao PostgreSQL com sucesso!');
 
-    // Definir o search_path para o schema peer
-    await client.query('SET search_path TO ' + schema);
-
+    // Definir o search_path
+    await client.query('SET search_path TO ' + searchPath);
     client.release();
     return true;
   } catch (err) {
@@ -58,7 +49,7 @@ const query = async (text, params) => {
   const client = await pool.connect();
   try {
     // Definir o search_path antes de executar a query
-    await client.query('SET search_path TO peer, public');
+    await client.query('SET search_path TO ' + searchPath);
     const result = await client.query(text, params);
     return result;
   } catch (error) {
@@ -74,7 +65,7 @@ const transaction = async (callback) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    await client.query('SET search_path TO peer, public');
+    await client.query('SET search_path TO ' + searchPath);
 
     const result = await callback(client);
 
@@ -89,9 +80,17 @@ const transaction = async (callback) => {
   }
 };
 
+// Retorna um client do pool com search_path configurado para uso manual (transações customizadas)
+const getClient = async () => {
+  const client = await pool.connect();
+  await client.query('SET search_path TO ' + searchPath);
+  return client;
+};
+
 module.exports = {
   pool,
   query,
   transaction,
+  getClient,
   testConnection
 };

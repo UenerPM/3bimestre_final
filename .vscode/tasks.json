@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Testar CRUD Produto",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"const fetch = require('node-fetch'); (async () => { try { console.log('Criando produto...'); let response = await fetch('http://localhost:3001/produto', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nomeproduto: 'Produto Teste', quantidadeemestoque: 10, precounitario: 20.5 }) }); console.log('Resposta:', await response.json()); console.log('Alterando produto...'); response = await fetch('http://localhost:3001/produto/1', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nomeproduto: 'Produto Alterado', quantidadeemestoque: 15, precounitario: 25.0 }) }); console.log('Resposta:', await response.json()); console.log('Deletando produto...'); response = await fetch('http://localhost:3001/produto/1', { method: 'DELETE' }); console.log('Produto deletado, status:', response.status); } catch (error) { console.error('Erro ao testar CRUD:', error); } })();"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

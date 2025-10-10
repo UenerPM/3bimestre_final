@@ -1,0 +1,61 @@
+.site-header {
+  /* fixo no topo para não ser afetado por layouts que centralizam o body */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: linear-gradient(90deg,#2d4a2d,#4a7c59);
+  color: white;
+  z-index: 1000;
+  box-sizing: border-box;
+}
+.site-header a { color: white; text-decoration: none; margin-right: 12px; font-weight: 600; }
+.site-brand a { font-size: 1.1rem; font-weight: 700; color: white; }
+.site-nav a:hover { text-decoration: underline; }
+
+.menu-toggle {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: inline-block; /* show always */
+}
+
+.site-nav {
+  display: none; /* hidden by default, opened via menu */
+  gap: 12px;
+  align-items: center;
+  flex-direction: column;
+  background: linear-gradient(180deg,#2d4a2d,#3f6b48);
+  position: absolute;
+  top: 60px;
+  right: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.site-user { display: flex; align-items: center; gap: 8px; }
+.site-user button { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 8px; border-radius: 6px; cursor: pointer; }
+.site-user span { font-weight: 600; }
+.active-nav { text-decoration: underline; opacity: 1; }
+
+.site-avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.12); display: inline-flex; align-items: center; justify-content: center; color: white; font-weight: 700; }
+.site-avatar img.site-avatar-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
+.site-nav a[data-protected] { opacity: 0.95; }
+.site-nav a[data-protected][style*="display: none"] { opacity: 0.4; }
+
+@media (max-width: 768px) {
+  .site-header { padding: 10px 12px; }
+}
+
+/* garante que o conteúdo não fique sob o header fixo (ajuste simples para páginas com header) */
+body { box-sizing: border-box; padding-top: 64px; }

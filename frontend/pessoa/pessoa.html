@@ -9,6 +9,7 @@
 </head>
 
 <body>
+    <script src="/common/auth-guard.js" defer></script>
     <header>
         <h1>CRUD Pessoa</h1>
     </header>
@@ -19,9 +20,9 @@
 
             <form id="pessoaForm">
                 <div class="search-container">
-                    <label for="searchId">Buscar por ID:</label>
+                    <label for="searchId">Buscar por CPF:</label>
                     <div class="search-input-group">
-                        <input type="number" id="searchId" placeholder="Digite o ID para buscar">
+                        <input type="text" id="searchId" placeholder="Digite o CPF para buscar">
                         <button type="button" id="btnBuscar">🔍 Buscar</button>
 
                         <button type="button" id="btnIncluir" class="btn-primary">Incluir</button>
@@ -37,13 +38,13 @@
                     <legend>Dados da Pessoa</legend>
 
                     <div class="form-group">
-                        <label for="nome_pessoa">Nome:</label>
-                        <input type="text" id="nome_pessoa" name="nome_pessoa" required>
+                        <label for="nomepessoa">Nome:</label>
+                        <input type="text" id="nomepessoa" name="nomepessoa" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="email_pessoa">Email:</label>
-                        <input type="email" id="email_pessoa" name="email_pessoa" required>
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required>
                     </div>
 
                     <div class="form-group">
@@ -52,35 +53,34 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="primeiro_acesso_pessoa">Primeiro Acesso:</label>
-                        <select id="primeiro_acesso_pessoa" name="primeiro_acesso_pessoa">
+                        <label for="data_acesso">Primeiro Acesso:</label>
+                        <select id="data_acesso" name="data_acesso">
                             <option value="true">Sim</option>
                             <option value="false">Não</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="data_nascimento">Data de Nascimento:</label>
-                        <input type="date" id="data_nascimento" name="data_nascimento">
+                        <label for="datanascimentopessoa">Data de Nascimento:</label>
+                        <input type="date" id="datanascimentopessoa" name="datanascimentopessoa">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cpfpessoa">CPF:</label>
+                        <input type="text" id="cpfpessoa" name="cpfpessoa" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cep">CEP:</label>
+                        <input type="text" id="cep" name="cep" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="numero">Número:</label>
+                        <input type="text" id="numero" name="numero" required>
                     </div>
                 </fieldset>
             </form>
-            <div class="umParaum">
-                <div class="professor">
-                    <input type="checkbox" id="checkboxProfessor" name="checkboxProfessor">
-                    <span id="spanProfessor">Professor</span>
-                    <input type="text" id="mnemonicoProfessor" name="mnemonicoProfessor" placeholder="Mnemônico" style="display: inline;">
-                    <input type="text" id="departamentoProfessor" name="departamentoProfessor" placeholder="Departamento" style="display: inline;">
-
-                </div>
-                <div class="avaliador">
-                    <input type="checkbox" id="checkboxAvaliador" name="checkboxAvaliador">
-                    <span>Avaliador</span>
-                </div>
-                <div class="avaliado">
-                    <input type="checkbox" id="checkboxAvaliado" name="checkboxAvaliado"> Avaliado
-                </div>
-            </div>
         </section>
 
         <section class="list-section">
@@ -88,11 +88,13 @@
                 <table id="pessoasTable">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>CPF</th>
                             <th>Nome</th>
                             <th>Email</th>
                             <th>Primeiro Acesso</th>
                             <th>Data Nascimento</th>
+                            <th>CEP</th>
+                            <th>Número</th>
                         </tr>
                     </thead>
                     <tbody id="pessoasTableBody">
@@ -108,7 +110,7 @@
     </footer>
 
     <div id="messageContainer" class="message-container"></div>
-
+    <script src="/common/header.js" defer></script>
     <script src="/pessoa/pessoa.js" defer></script>
 
 </body>

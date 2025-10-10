@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cadastro de Pessoa</title>
+  <link rel="stylesheet" href="./cadastro.css" />
+  <link rel="stylesheet" href="/common/header.css" />
+</head>
+<body>
+  <script src="/common/header.js" defer></script>
+  <main class="container">
+    <h1>Cadastro de Pessoa</h1>
+
+    <form id="cadastroForm" novalidate>
+      <div class="row">
+        <label for="cpfpessoa">CPF</label>
+        <input id="cpfpessoa" name="cpfpessoa" type="text" inputmode="numeric" placeholder="000.000.000-00" required />
+      </div>
+
+      <div class="row">
+        <label for="nomepessoa">Nome</label>
+        <input id="nomepessoa" name="nomepessoa" type="text" placeholder="Nome completo" required />
+      </div>
+
+      <div class="row">
+        <label for="datanascimentopessoa">Data de nascimento</label>
+        <input id="datanascimentopessoa" name="datanascimentopessoa" type="date" />
+      </div>
+
+      <fieldset>
+        <legend>Endereço</legend>
+
+        <div class="row">
+          <label for="numero">Número</label>
+          <input id="numero" name="numero" type="text" />
+        </div>
+
+        <div class="row">
+          <label for="cep">CEP</label>
+          <input id="cep" name="cep" type="text" placeholder="00000-000" />
+        </div>
+
+      </fieldset>
+
+      <div class="row">
+        <label for="email">E-mail</label>
+        <input id="email" name="email" type="email" placeholder="seu@exemplo.com" />
+      </div>
+
+      <div class="row">
+        <label for="senha_pessoa">Senha</label>
+        <input id="senha_pessoa" name="senha_pessoa" type="password" placeholder="Digite sua senha" required />
+      </div>
+
+      <div class="button-row">
+        <button type="submit" class="btn-primary">Salvar</button>
+        <button type="button" id="btnCancelar" class="btn-cancel">Cancelar</button>
+      </div>
+
+      <div id="msg" role="status" aria-live="polite" class="msg"></div>
+    </form>
+  </main>
+
+  <script src="./cadastro.js"></script>
+</body>
+</html>

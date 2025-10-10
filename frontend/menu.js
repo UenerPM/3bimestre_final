@@ -34,33 +34,40 @@ function nomeUsuario() {
 window.onload = nomeUsuario;
 
 async function usuarioAutorizado() {
-  
   const rota = API_BASE_URL + '/login/verificaSeUsuarioEstaLogado';
   alert('Rota: ' + rota);
-  
-  const res = await fetch(rota, { credentials: 'include' });
-  alert(JSON.stringify(data));
 
-
-
-
+  const res = await fetch(rota, { method: 'POST', credentials: 'include' });
   const data = await res.json();
-  if (data.status === 'ok') {
+
+  if (data && data.status === 'ok') {
     document.getElementById('boasVindas').innerText =
       `${data.nome} - ${data.mnemonicoProfessor ? `Professor: ${data.mnemonicoProfessor}` : ''}`;
     if (data.mnemonicoProfessor) ehProfessor = true;
   } else {
-    alert("Você precisa fazer login.");
-    window.location.href = "./login/login.html";
+    alert('Você precisa fazer login.');
+    window.location.href = './login/login.html';
   }
 }
 
 async function logout2() {
-  await fetch('http://localhost:3005/logout', {
+  await fetch('http://localhost:3001/logout', {
     method: 'POST',
     credentials: 'include'
   });
-  window.location.href = "http://localhost:3005/inicio";
+  window.location.href = "/menu.html";
 }
+
+// Adicionando funcionalidade para gerenciar pedidos
+function gerenciarPedidos() {
+  window.location.href = './pedido/pedido.html';
+}
+
+// Adicionando botão para gerenciar pedidos
+const menu = document.getElementById('menu');
+const botaoPedidos = document.createElement('button');
+botaoPedidos.innerText = 'Gerenciar Pedidos';
+botaoPedidos.onclick = gerenciarPedidos;
+menu.appendChild(botaoPedidos);
 
 // usuarioAutorizado();

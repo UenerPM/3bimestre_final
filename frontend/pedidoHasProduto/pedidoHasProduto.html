@@ -1,0 +1,110 @@
+<!-- HTML para a tabela pedidoHasProduto -->
+<!-- ...adicione aqui o conteúdo da página pedidoHasProduto --><!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD - Pedido Has Produto</title>
+    <link rel="stylesheet" href="/pedidoHasProduto/pedidoHasProduto.css">
+</head>
+
+<body>
+    <script src="/common/auth-guard.js" defer></script>
+    <header>
+        <h1>CRUD Pedido Has Produto</h1>
+    </header>
+
+    <main>
+        <section class="form-section">
+            <h2>Cadastro de Pedido Has Produto</h2>
+
+            <form id="pedidoHasProdutoForm">
+                <div class="search-container">
+                    <label for="searchId">Buscar por ID:</label>
+                    <div class="search-input-group">
+                        <input type="text" id="searchId" placeholder="Digite o ID para buscar">
+                        <button type="button" id="btnBuscar">🔍 Buscar</button>
+
+                        <button type="button" id="btnIncluir" class="btn-primary">Incluir</button>
+                        <button type="button" id="btnAlterar" class="btn-secondary" style="display: none;">Alterar</button>
+                        <button type="button" id="btnExcluir" class="btn-danger" style="display: none;">Excluir</button>
+                        <button type="button" id="btnSalvar" class="btn-save" style="display: none;">Salvar</button>
+                        <button type="button" id="btnCancelar" class="btn-cancel">Cancelar</button>
+                    </div>
+                </div>
+
+                <fieldset id="formFields">
+                    <legend>Dados do Pedido Has Produto</legend>
+
+                    <div class="form-group">
+                        <label for="idPedido">Pedido (pesquise pelo ID):</label>
+                        <input type="text" id="pedidoSearch" placeholder="Digite para filtrar pedidos..." autocomplete="off">
+                        <div id="pedidoDropdown" class="combo-dropdown"></div>
+                        <input type="hidden" id="idPedido" name="idPedido" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="idProduto">Produto (pesquise pelo nome ou ID):</label>
+                        <input type="text" id="produtoSearch" placeholder="Digite para filtrar produtos..." autocomplete="off">
+                        <div id="produtoDropdown" class="combo-dropdown"></div>
+                        <input type="hidden" id="idProduto" name="idProduto">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="quantidade">Quantidade:</label>
+                        <input type="number" id="quantidade" name="quantidade" min="1" value="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button type="button" id="btnAddItem" class="btn-primary">Adicionar item à lista</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Itens a adicionar:</label>
+                        <div id="itensSelecionadosContainer">
+                            <table id="itensSelecionadosTable">
+                                <thead><tr><th>Produto</th><th>Quantidade</th><th>Preço</th><th>Ações</th></tr></thead>
+                                <tbody id="itensSelecionadosBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </section>
+
+        <section class="list-section">
+            <div class="table-container">
+                <table id="pedidoHasProdutoTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Pedido (ID - Data)</th>
+                            <th>Produto (ID - Nome)</th>
+                            <th>Quantidade</th>
+                            <th>Preço unit.</th>
+                            <th>Subtotal</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pedidoHasProdutoTableBody">
+                        <!-- Dados serão carregados dinamicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Seleção por comboboxs implementada; tabelas de seleção removidas conforme solicitado -->
+    </main>
+
+    <footer>
+        <p>&copy; 2025 CRUD Pedido Has Produto</p>
+    </footer>
+
+    <div id="messageContainer" class="message-container"></div>
+    <script src="/common/header.js" defer></script>
+    <script src="/pedidoHasProduto/pedidoHasProduto.js" defer></script>
+</body>
+
+</html>

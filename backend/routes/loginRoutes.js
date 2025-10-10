@@ -6,11 +6,12 @@ const loginController = require('../controllers/loginController');
 router.post('/verificarEmail', loginController.verificarEmail);
 router.post('/verificarSenha', loginController.verificarSenha);
 router.post('/verificaSeUsuarioEstaLogado', loginController.verificaSeUsuarioEstaLogado);
+router.post('/logout', loginController.logout);
 
 // Rotas 
 router.get('/', loginController.listarPessoas);
 router.post('/', loginController.criarPessoa);
-router.get('/:id', loginController.obterPessoa);
+router.get('/:cpfpessoa', loginController.obterPessoa);
 // router.put('/:id', loginController.atualizarPessoa);
 // router.delete('/:id', loginController.deletarPessoa);
 

@@ -1,4 +1,3 @@
-//import { query } from '../database.js';
 const { query } = require('../database');
 // Funções do controller
 
@@ -11,171 +10,176 @@ exports.abrirCrudPessoa = (req, res) => {
 
 exports.listarPessoas = async (req, res) => {
   try {
-    const result = await query('SELECT * FROM pessoa ORDER BY id_pessoa');
-    // console.log('Resultado do SELECT:', result.rows);//verifica se está retornando algo
+    const result = await query(
+      'SELECT cpfpessoa, nomepessoa, email, senha_pessoa, data_acesso, datanascimentopessoa, numero, cep FROM pessoa ORDER BY cpfpessoa'
+    );
+    console.log('Resultado do SELECT:', result.rows); // Log para depuração
     res.json(result.rows);
   } catch (error) {
-    console.error('Erro ao listar pessoas:', error);
+    console.error('Erro ao listar pessoas:', error && error.stack ? error.stack : error);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
 
+// Adicionando tratamento de erros detalhado
 exports.criarPessoa = async (req, res) => {
-  //  console.log('Criando pessoa com dados:', req.body);
   try {
-    const { id_pessoa, nome_pessoa, email_pessoa, senha_pessoa, primeiro_acesso_pessoa = true, data_nascimento } = req.body;
+    console.log('Dados recebidos para criar pessoa:', req.body);
+    // Frontend envia: cpfpessoa, nomepessoa, email, senha_pessoa, primeiro_acesso_pessoa, datanascimentopessoa, numero, cep
+    const { cpfpessoa, nomepessoa, email, senha_pessoa, primeiro_acesso_pessoa, datanascimentopessoa, numero, cep } = req.body;
 
     // Validação básica
-    if (!nome_pessoa || !email_pessoa || !senha_pessoa) {
-      return res.status(400).json({
-        error: 'Nome, email e senha são obrigatórios'
-      });
+    if (!cpfpessoa || !nomepessoa || !email || !senha_pessoa) {
+      console.warn('Dados obrigatórios ausentes:', { cpfpessoa, nomepessoa, email, senha_pessoa });
+      return res.status(400).json({ error: 'CPF, nome, email e senha são obrigatórios' });
     }
 
-    // Validação de email básica
+    // Adicionando logs para depuração
+    console.log('CPF recebido:', cpfpessoa);
+    console.log('Email recebido:', email);
+    console.log('Número recebido:', numero);
+    console.log('CEP recebido:', cep);
+
+    // Validação de email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email_pessoa)) {
-      return res.status(400).json({
-        error: 'Formato de email inválido'
-      });
+    if (!emailRegex.test(email)) {
+      console.warn('Email inválido:', email);
+      return res.status(400).json({ error: 'Email inválido' });
     }
 
-    const result = await query(
-      'INSERT INTO pessoa (id_pessoa, nome_pessoa, email_pessoa, senha_pessoa, primeiro_acesso_pessoa, data_nascimento) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [id_pessoa, nome_pessoa, email_pessoa, senha_pessoa, primeiro_acesso_pessoa, data_nascimento]
-    );
+    // converter primeiro_acesso_pessoa -> data_acesso (timestamp)
+    const dataAcessoFormatada = primeiro_acesso_pessoa ? new Date().toISOString() : new Date().toISOString();
 
-    res.status(201).json(result.rows[0]);
+    // converter datanascimentopessoa se fornecido
+    let dataNascimentoFormatada = null;
+    if (datanascimentopessoa) {
+      const parsed = new Date(datanascimentopessoa);
+      if (isNaN(parsed.getTime())) return res.status(400).json({ error: 'Formato inválido para datanascimentopessoa' });
+      dataNascimentoFormatada = parsed.toISOString().split('T')[0];
+    }
+
+    try {
+      const result = await query(
+        'INSERT INTO pessoa (cpfpessoa, nomepessoa, email, senha_pessoa, data_acesso, datanascimentopessoa, numero, cep) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+        [cpfpessoa, nomepessoa, email, senha_pessoa, dataAcessoFormatada, dataNascimentoFormatada, numero, cep]
+      );
+
+      console.log('Pessoa criada com sucesso:', result.rows[0]);
+      return res.status(201).json(result.rows[0]);
+    } catch (error) {
+      console.error('Erro ao criar pessoa:', error && error.stack ? error.stack : error);
+      return res.status(500).json({ error: 'Erro interno do servidor', details: error.message });
+    }
   } catch (error) {
     console.error('Erro ao criar pessoa:', error);
 
-    // Verifica se é erro de email duplicado (constraint unique violation)
-    if (error.code === '23505' && error.constraint === 'pessoa_email_pessoa_key') {
-      return res.status(400).json({
-        error: 'Email já está em uso'
-      });
+    if (error.code === '23505' && error.constraint && error.constraint.includes('email')) {
+      return res.status(400).json({ error: 'Email já está em uso' });
     }
 
-    // Verifica se é erro de violação de constraint NOT NULL
     if (error.code === '23502') {
-      return res.status(400).json({
-        error: 'Dados obrigatórios não fornecidos'
-      });
+      return res.status(400).json({ error: 'Dados obrigatórios não fornecidos' });
     }
 
-    res.status(500).json({ error: 'Erro interno do servidor' });
+    res.status(500).json({ error: 'Erro interno do servidor', details: error.message });
   }
 }
 
 exports.obterPessoa = async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const cpfpessoa = req.params.cpfpessoa || req.body.cpfpessoa; // Verifica tanto params quanto body
+    console.log('CPF recebido para obter pessoa:', cpfpessoa);
 
-    if (isNaN(id)) {
-      return res.status(400).json({ error: 'ID deve ser um número válido' });
+    if (!cpfpessoa) {
+      console.warn('CPF inválido ou não fornecido:', req.params.cpfpessoa, req.body.cpfpessoa);
+      return res.status(400).json({ error: 'CPF deve ser válido e fornecido' });
     }
 
-    const result = await query(
-      'SELECT * FROM pessoa WHERE id_pessoa = $1',
-      [id]
-    );
+  const result = await query('SELECT cpfpessoa, nomepessoa, email, senha_pessoa, data_acesso, datanascimentopessoa, numero, cep FROM pessoa WHERE cpfpessoa = $1', [cpfpessoa]);
 
     if (result.rows.length === 0) {
+      console.warn('Pessoa não encontrada para CPF:', cpfpessoa);
       return res.status(404).json({ error: 'Pessoa não encontrada' });
     }
 
+    console.log('Pessoa encontrada:', result.rows[0]);
     res.json(result.rows[0]);
   } catch (error) {
     console.error('Erro ao obter pessoa:', error);
-    res.status(500).json({ error: 'Erro interno do servidor' });
+    res.status(500).json({ error: 'Erro interno do servidor', details: error.message });
   }
 }
 
 exports.atualizarPessoa = async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
-    const { nome_pessoa, email_pessoa, senha_pessoa, primeiro_acesso_pessoa, data_nascimento } = req.body;
+    console.log('Requisição recebida para atualizar pessoa:', req.body);
+    const cpfpessoa = req.params.cpfpessoa;
+    if (!cpfpessoa) return res.status(400).json({ error: 'CPF obrigatório na rota' });
 
-    // Validação de email se fornecido
-    if (email_pessoa) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email_pessoa)) {
-        return res.status(400).json({
-          error: 'Formato de email inválido'
-        });
-      }
-    }
-    // Verifica se a pessoa existe
-    const existingPersonResult = await query(
-      'SELECT * FROM pessoa WHERE id_pessoa = $1',
-      [id]
-    );
+    const { nomepessoa, email, senha_pessoa, datanascimentopessoa, numero, cep, primeiro_acesso_pessoa } = req.body;
 
-    if (existingPersonResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Pessoa não encontrada' });
+    // converter data se fornecida
+    let dataNascimentoFormatada = null;
+    if (datanascimentopessoa) {
+      const parsed = new Date(datanascimentopessoa);
+      if (isNaN(parsed.getTime())) return res.status(400).json({ error: 'Formato inválido para datanascimentopessoa' });
+      dataNascimentoFormatada = parsed.toISOString().split('T')[0];
     }
 
-    // Constrói a query de atualização dinamicamente para campos não nulos
-    const currentPerson = existingPersonResult.rows[0];
-    const updatedFields = {
-      nome_pessoa: nome_pessoa !== undefined ? nome_pessoa : currentPerson.nome_pessoa,
-      email_pessoa: email_pessoa !== undefined ? email_pessoa : currentPerson.email_pessoa,
-      senha_pessoa: senha_pessoa !== undefined ? senha_pessoa : currentPerson.senha_pessoa,
-      primeiro_acesso_pessoa: primeiro_acesso_pessoa !== undefined ? primeiro_acesso_pessoa : currentPerson.primeiro_acesso_pessoa,
-      data_nascimento: data_nascimento !== undefined ? data_nascimento : currentPerson.data_nascimento
-    };
+    const dataAcessoFormatada = primeiro_acesso_pessoa ? new Date().toISOString() : null;
 
-    // Atualiza a pessoa
-    const updateResult = await query(
-      'UPDATE pessoa SET nome_pessoa = $1, email_pessoa = $2, senha_pessoa = $3, primeiro_acesso_pessoa = $4, data_nascimento = $5 WHERE id_pessoa = $6 RETURNING *',
-      [updatedFields.nome_pessoa, updatedFields.email_pessoa, updatedFields.senha_pessoa, updatedFields.primeiro_acesso_pessoa, updatedFields.data_nascimento, id]
-    );
+    const sql = `UPDATE pessoa SET nomepessoa = $1, email = $2, senha_pessoa = $3, datanascimentopessoa = $4, numero = $5, cep = $6 ${dataAcessoFormatada ? ', data_acesso = $7' : ''} WHERE cpfpessoa = $${dataAcessoFormatada ? '8' : '7'} RETURNING cpfpessoa, nomepessoa, email, datanascimentopessoa, numero, cep`;
 
-    res.json(updateResult.rows[0]);
-  } catch (error) {
-    console.error('Erro ao atualizar pessoa:', error);
+    const params = [nomepessoa, email, senha_pessoa, dataNascimentoFormatada, numero, cep];
+    if (dataAcessoFormatada) params.push(dataAcessoFormatada);
+    params.push(cpfpessoa);
 
-    // Verifica se é erro de email duplicado
-    if (error.code === '23505' && error.constraint === 'pessoa_email_pessoa_key') {
-      return res.status(400).json({
-        error: 'Email já está em uso por outra pessoa'
-      });
-    }
-
-    res.status(500).json({ error: 'Erro interno do servidor' });
+    const result = await query(sql, params);
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Pessoa não encontrada' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Erro ao atualizar pessoa:', err && err.stack ? err.stack : err);
+    res.status(500).json({ error: 'Erro ao atualizar pessoa' });
   }
 }
 
 exports.deletarPessoa = async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
-    // Verifica se a pessoa existe
+    let cpfpessoa = req.params.cpfpessoa;
+    if (!cpfpessoa) return res.status(400).json({ error: 'CPF obrigatório na rota' });
+
+    cpfpessoa = String(cpfpessoa).trim();
+    console.log('Requisição DELETE /pessoa/:cpfpessoa recebida para CPF:', cpfpessoa);
+
+    // Normaliza CPF (remove quaisquer caracteres não numéricos) para evitar diferenças de formatação
+    const normalizedCpf = cpfpessoa.replace(/\D/g, '');
+
+    // Verifica se a pessoa existe comparando CPF normalizado no banco
     const existingPersonResult = await query(
-      'SELECT * FROM pessoa WHERE id_pessoa = $1',
-      [id]
+      "SELECT * FROM pessoa WHERE regexp_replace(cpfpessoa, '\\D', '', 'g') = $1",
+      [normalizedCpf]
     );
 
+    console.log('Resultado verificação existência (rows):', existingPersonResult.rows.length);
     if (existingPersonResult.rows.length === 0) {
+      // Não encontrou — retorna 404 (frontend pode tratar como idempotente) ou considerar 204.
+      console.warn('Pessoa não encontrada para exclusão. CPF pesquisado (normalizado):', normalizedCpf);
       return res.status(404).json({ error: 'Pessoa não encontrada' });
     }
 
-    // Deleta a pessoa (as constraints CASCADE cuidarão das dependências)
-    await query(
-      'DELETE FROM pessoa WHERE id_pessoa = $1',
-      [id]
+    // Deleta usando a mesma comparação por CPF normalizado e retorna o registro excluído
+    const deleteResult = await query(
+      "DELETE FROM pessoa WHERE regexp_replace(cpfpessoa, '\\D', '', 'g') = $1 RETURNING cpfpessoa",
+      [normalizedCpf]
     );
 
-    res.status(204).send();
+    console.log('Resultado delete (rows):', deleteResult.rowCount || (deleteResult.rows && deleteResult.rows.length));
+    return res.status(204).send();
   } catch (error) {
-    console.error('Erro ao deletar pessoa:', error);
-
-    // Verifica se é erro de violação de foreign key (dependências)
+    console.error('Erro ao deletar pessoa:', error && error.stack ? error.stack : error);
     if (error.code === '23503') {
-      return res.status(400).json({
-        error: 'Não é possível deletar pessoa com dependências associadas'
-      });
+      return res.status(400).json({ error: 'Não é possível deletar pessoa com dependências associadas' });
     }
-
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
@@ -190,7 +194,7 @@ exports.obterPessoaPorEmail = async (req, res) => {
     }
 
     const result = await query(
-      'SELECT * FROM pessoa WHERE email_pessoa = $1',
+      'SELECT * FROM pessoa WHERE email = $1',
       [email]
     );
 
@@ -223,7 +227,7 @@ exports.atualizarSenha = async (req, res) => {
 
     // Verifica se a pessoa existe e a senha atual está correta
     const personResult = await query(
-      'SELECT * FROM pessoa WHERE id_pessoa = $1',
+      'SELECT * FROM pessoa WHERE cpfpessoa = $1',
       [id]
     );
 
@@ -240,7 +244,7 @@ exports.atualizarSenha = async (req, res) => {
 
     // Atualiza apenas a senha
     const updateResult = await query(
-      'UPDATE pessoa SET senha_pessoa = $1 WHERE id_pessoa = $2 RETURNING id_pessoa, nome_pessoa, email_pessoa, primeiro_acesso_pessoa, data_nascimento',
+      'UPDATE pessoa SET senha_pessoa = $1 WHERE cpfpessoa = $2 RETURNING cpfpessoa, nomepessoa, email, data_acesso, dataNascimentoPessoa',
       [nova_senha, id]
     );
 
@@ -249,4 +253,9 @@ exports.atualizarSenha = async (req, res) => {
     console.error('Erro ao atualizar senha:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
+}
+
+function converterDataParaISO(dataString) {
+    if (!dataString) return null;
+    return new Date(dataString).toISOString().split('T')[0];
 }

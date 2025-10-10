@@ -79,25 +79,37 @@ app.use('/menu', menuRoutes);
 const pessoaRoutes = require('./routes/pessoaRoutes');
 app.use('/pessoa', pessoaRoutes);
 
-const questaoRoutes = require('./routes/questaoRoutes');
-app.use('/questao', questaoRoutes);
+const cargoRoutes = require('./routes/cargoRoutes');
+app.use('/cargo', cargoRoutes);
 
-const professorRoutes = require('./routes/professorRoutes');
-app.use('/professor', professorRoutes);
+const produtoRoutes = require('./routes/produtoRoutes');
+app.use('/produto', produtoRoutes);
 
-const avaliadorRoutes = require('./routes/avaliadorRoutes');
-app.use('/avaliador', avaliadorRoutes);
+const cadastroRoutes = require('./routes/cadastroRoutes');
+app.use('/cadastro', cadastroRoutes);
 
-const avaliadoRoutes = require('./routes/avaliadoRoutes');
-app.use('/avaliado', avaliadoRoutes);
+const pedidoRoutes = require('./routes/pedidoRoutes');
+app.use('/pedido', pedidoRoutes);
 
-
-const avaliacaoRoutes = require('./routes/avaliacaoRoutes');
-app.use('/avaliacao', avaliacaoRoutes);
-
-const avaliacaoHasQuestaoRoutes = require('./routes/avaliacaoHasQuestaoRoutes');
-app.use('/avaliacaoHasQuestao', avaliacaoHasQuestaoRoutes);
-
+const pedidoHasProdutoRoutes = require('./routes/pedidoHasProdutoRoutes');
+app.use('/pedidoHasProduto', pedidoHasProdutoRoutes);
+const funcionarioRoutes = require('./routes/funcionarioRoutes');
+app.use('/funcionario', funcionarioRoutes);
+// rotas adicionadas: cliente e formaPagamento
+const clienteRoutes = require('./routes/clienteRoutes');
+app.use('/cliente', clienteRoutes);
+const formaPagamentoRoutes = require('./routes/formaPagamentoRoutes');
+app.use('/formaPagamento', formaPagamentoRoutes);
+// rota administrativa para aplicar migrações (dev only)
+try {
+  const adminRoutes = require('./routes/adminRoutes');
+  // exponha apenas em development para evitar riscos em produção
+  if ((process.env.NODE_ENV || 'development') === 'development') {
+    app.use('/admin', adminRoutes);
+  }
+} catch (e) {
+  console.warn('Admin routes não registradas:', e.message || e);
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Rota padrão
@@ -109,6 +121,10 @@ app.get('/', (req, res) => {
   });
 });
 
+// Adiciona rota específica para servir a página de cadastro
+app.get('/cadastro/cadastro.html', (req, res) => {
+  res.sendFile(path.join(caminhoFrontend, 'cadastro', 'cadastro.html'));
+});
 
 // Rota para testar a conexão com o banco
 app.get('/health', async (req, res) => {
@@ -153,7 +169,7 @@ app.use((err, req, res, next) => {
 });
 
 // Middleware para rotas não encontradas (404)
-app.use('*', (req, res) => {
+app.all('*', (req, res) => {
   res.status(404).json({
     error: 'Rota não encontrada',
     message: `A rota ${req.originalUrl} não existe`,
@@ -163,10 +179,12 @@ app.use('*', (req, res) => {
 
 
 
-// Inicialização do servidor
+// Ajustando o servidor para sempre usar a porta 3001
+const PORT = 3001;
+
 const startServer = async () => {
   try {
-    // Testar conexão com o banco antes de iniciar o servidor
+    console.log('Iniciando verificação do banco de dados...');
     console.log(caminhoFrontend);
     console.log('Testando conexão com PostgreSQL...');
     const connectionTest = await db.testConnection();
@@ -178,13 +196,33 @@ const startServer = async () => {
 
     console.log('✅ PostgreSQL conectado com sucesso');
 
-    const PORT = process.env.PORT || PORT_FIXA;
+    try {
+      const sql = `
+        SELECT setval(
+          pg_get_serial_sequence('cargo','idcargo'),
+          COALESCE((SELECT MAX(idcargo) FROM cargo), 0) + 1,
+          false
+        );
+      `;
+      await db.query(sql);
+      console.log('Sequência cargo.idcargo realinhada com sucesso');
+    } catch (err) {
+      console.error('Erro ao resetar sequência cargo.idcargo:', err.message || err);
+    }
 
     app.listen(PORT, () => {
       console.log(`🚀 Servidor rodando em http://${HOST}:${PORT}`);
       console.log(`📊 Health check disponível em http://${HOST}:${PORT}/health`);
       console.log(`🗄️ Banco de dados: PostgreSQL`);
       console.log(`🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
+      console.log('Servidor inicializado com sucesso. Aguardando conexões...');
+    }).on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.error(`A porta ${PORT} já está em uso. Não foi possível iniciar o servidor.`);
+        process.exit(1);
+      } else {
+        throw err;
+      }
     });
 
   } catch (error) {

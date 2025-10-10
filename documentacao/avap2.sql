@@ -1,301 +1,179 @@
--- =============================
--- Script completo para Loja de Linguiças (PostgreSQL)
--- Estrutura estendida para um site/e-commerce online
--- =============================
+-- ==============================================
+-- LIMPEZA DO BANCO (CASCADE para apagar dependências)
+-- ==============================================
+DROP TABLE IF EXISTS PagamentoHasFormaPagamento CASCADE;
+DROP TABLE IF EXISTS Pagamento CASCADE;
+DROP TABLE IF EXISTS PedidoHasProduto CASCADE;
+DROP TABLE IF EXISTS Pedido CASCADE;
+DROP TABLE IF EXISTS Produto CASCADE;
+DROP TABLE IF EXISTS Cliente CASCADE;
+DROP TABLE IF EXISTS Funcionario CASCADE;
+DROP TABLE IF EXISTS Cargo CASCADE;
+DROP TABLE IF EXISTS Pessoa CASCADE;
+DROP TABLE IF EXISTS Cidade CASCADE;
+DROP TABLE IF EXISTS FormaDePagamento CASCADE;
 
--- Extensões úteis
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+-- ==============================================
+-- CRIAÇÃO DAS TABELAS
+-- ==============================================
 
--- Função para manter updated_at
-CREATE OR REPLACE FUNCTION trigger_set_timestamp()
-RETURNS TRIGGER AS $$
-BEGIN
-  NEW.updated_at = NOW();
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- =============================
--- Entidades principais
--- =============================
-
--- Pessoas (dados pessoais básicos, pode estar ligado a usuário/cliente/funcionário)
-CREATE TABLE IF NOT EXISTS pessoa (
-  cpf VARCHAR(14) PRIMARY KEY,
-  nome VARCHAR(150) NOT NULL,
-  data_nascimento DATE,
-  telefone VARCHAR(30),
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE Pessoa (
+    cpfPessoa VARCHAR(20) PRIMARY KEY,
+    nomePessoa VARCHAR(60) NOT NULL,
+    dataNascimentoPessoa DATE,
+    numero VARCHAR(15),
+    cep VARCHAR(15),
+    email VARCHAR(255),
+    senha_pessoa VARCHAR(255) NOT NULL,
+    data_acesso TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Usuários do sistema (login) — para clientes e administradores
-CREATE TABLE IF NOT EXISTS usuario (
-  id_usuario UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  cpf VARCHAR(14) REFERENCES pessoa(cpf),
-  email VARCHAR(255) UNIQUE NOT NULL,
-  senha_hash VARCHAR(255) NOT NULL,
-  nome_exibicao VARCHAR(150),
-  papel VARCHAR(50) DEFAULT 'customer', -- ex: customer, admin
-  is_active BOOLEAN DEFAULT TRUE,
-  last_login TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE Cargo (
+    idCargo SERIAL PRIMARY KEY,
+    nomeCargo VARCHAR(45) NOT NULL
 );
 
-CREATE TRIGGER usuario_set_timestamp
-BEFORE UPDATE ON usuario
-FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-
--- Endereços (vários endereços por cliente)
-CREATE TABLE IF NOT EXISTS endereco (
-  id_endereco SERIAL PRIMARY KEY,
-  cpf VARCHAR(14) REFERENCES pessoa(cpf),
-  apelido VARCHAR(50),
-  logradouro VARCHAR(200),
-  numero VARCHAR(20),
-  complemento VARCHAR(100),
-  bairro VARCHAR(100),
-  cidade VARCHAR(100),
-  estado VARCHAR(100),
-  cep VARCHAR(20),
-  tipo_endereco VARCHAR(30), -- ex: entrega, cobrança
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE Cliente (
+    PessoaCpfPessoa VARCHAR(20) PRIMARY KEY REFERENCES Pessoa(cpfPessoa) ON DELETE CASCADE,
+    rendaCliente NUMERIC(12,2),
+    dataDeCadastroCliente DATE
 );
 
-CREATE TRIGGER endereco_set_timestamp
-BEFORE UPDATE ON endereco
-FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-
--- Categorias de produtos
-CREATE TABLE IF NOT EXISTS categoria_produto (
-  id_categoria SERIAL PRIMARY KEY,
-  nome VARCHAR(100) NOT NULL,
-  descricao TEXT,
-  slug VARCHAR(150) UNIQUE,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE Funcionario (
+    PessoaCpfPessoa VARCHAR(20) PRIMARY KEY REFERENCES Pessoa(cpfPessoa) ON DELETE CASCADE,
+    salario NUMERIC(12,2),
+    CargosIdCargo INT NOT NULL REFERENCES Cargo(idCargo),
+    porcentagemComissao NUMERIC(5,2)
 );
 
-CREATE TRIGGER categoria_produto_set_timestamp
-BEFORE UPDATE ON categoria_produto
-FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-
--- Produtos
-CREATE TABLE IF NOT EXISTS produto (
-  id_produto SERIAL PRIMARY KEY,
-  sku VARCHAR(100) UNIQUE,
-  nome_produto VARCHAR(200) NOT NULL,
-  slug VARCHAR(200) UNIQUE,
-  descricao TEXT,
-  peso_kg NUMERIC(8,3),
-  largura_cm NUMERIC(8,2),
-  altura_cm NUMERIC(8,2),
-  profundidade_cm NUMERIC(8,2),
-  preco_base NUMERIC(12,2) NOT NULL,
-  ativo BOOLEAN DEFAULT TRUE,
-  id_categoria INT REFERENCES categoria_produto(id_categoria),
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE Produto (
+    idProduto SERIAL PRIMARY KEY,
+    nomeProduto VARCHAR(45) NOT NULL,
+    quantidadeEmEstoque INT DEFAULT 0,
+    precoUnitario NUMERIC(12,2) NOT NULL
 );
 
-CREATE TRIGGER produto_set_timestamp
-BEFORE UPDATE ON produto
-FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-
--- Imagens dos produtos
-CREATE TABLE IF NOT EXISTS produto_imagem (
-  id_imagem SERIAL PRIMARY KEY,
-  id_produto INT REFERENCES produto(id_produto) ON DELETE CASCADE,
-  url TEXT NOT NULL,
-  alt_text VARCHAR(255),
-  ordem INT DEFAULT 0
+CREATE TABLE Pedido (
+    idPedido SERIAL PRIMARY KEY,
+    dataDoPedido DATE NOT NULL,
+    ClientePessoaCpfPessoa VARCHAR(20) NOT NULL REFERENCES Cliente(PessoaCpfPessoa),
+    FuncionarioPessoaCpfPessoa VARCHAR(20) NOT NULL REFERENCES Funcionario(PessoaCpfPessoa)
 );
 
--- Variantes (tamanhos, sabores, embalagens)
-CREATE TABLE IF NOT EXISTS produto_variante (
-  id_variante SERIAL PRIMARY KEY,
-  id_produto INT REFERENCES produto(id_produto) ON DELETE CASCADE,
-  nome_variante VARCHAR(150),
-  sku VARCHAR(100) UNIQUE,
-  preco NUMERIC(12,2),
-  estoque INT DEFAULT 0,
-  ativo BOOLEAN DEFAULT TRUE
+CREATE TABLE PedidoHasProduto (
+    ProdutoIdProduto INT NOT NULL REFERENCES Produto(idProduto),
+    PedidoIdPedido INT NOT NULL REFERENCES Pedido(idPedido),
+    quantidade INT NOT NULL,
+    precoUnitario NUMERIC(12,2),
+    PRIMARY KEY (ProdutoIdProduto, PedidoIdPedido)
 );
 
--- Histórico de inventário (movimentações)
-CREATE TABLE IF NOT EXISTS inventario_movimentacao (
-  id_movimentacao SERIAL PRIMARY KEY,
-  id_produto INT REFERENCES produto(id_produto),
-  id_variante INT REFERENCES produto_variante(id_variante),
-  tipo_movimentacao VARCHAR(30), -- entrada, saida, ajuste
-  quantidade INT NOT NULL,
-  origem VARCHAR(100), -- ex: compra fornecedor, venda, ajuste manual
-  observacao TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE Pagamento (
+    PedidoIdPedido INT PRIMARY KEY REFERENCES Pedido(idPedido) ON DELETE CASCADE,
+    dataPagamento TIMESTAMP DEFAULT now(),
+    valorTotalPagamento NUMERIC(12,2)
 );
 
--- Carrinho de compras temporário
-CREATE TABLE IF NOT EXISTS carrinho (
-  id_carrinho UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  id_usuario UUID REFERENCES usuario(id_usuario),
-  criado_em TIMESTAMPTZ DEFAULT NOW(),
-  atualizado_em TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE FormaDePagamento (
+    idFormaPagamento SERIAL PRIMARY KEY,
+    nomeFormaPagamento VARCHAR(100) NOT NULL
 );
 
-CREATE TRIGGER carrinho_set_timestamp
-BEFORE UPDATE ON carrinho
-FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-
-CREATE TABLE IF NOT EXISTS carrinho_item (
-  id_item SERIAL PRIMARY KEY,
-  id_carrinho UUID REFERENCES carrinho(id_carrinho) ON DELETE CASCADE,
-  id_produto INT REFERENCES produto(id_produto),
-  id_variante INT REFERENCES produto_variante(id_variante),
-  quantidade INT NOT NULL,
-  preco_unitario NUMERIC(12,2) NOT NULL,
-  criado_em TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE PagamentoHasFormaPagamento (
+    PagamentoIdPedido INT NOT NULL REFERENCES Pagamento(PedidoIdPedido) ON DELETE CASCADE,
+    FormaPagamentoIdFormaPagamento INT NOT NULL REFERENCES FormaDePagamento(idFormaPagamento),
+    valorPago NUMERIC(12,2),
+    PRIMARY KEY (PagamentoIdPedido, FormaPagamentoIdFormaPagamento)
 );
 
--- Cupons / descontos
-CREATE TABLE IF NOT EXISTS cupom (
-  id_cupom SERIAL PRIMARY KEY,
-  codigo VARCHAR(50) UNIQUE NOT NULL,
-  descricao TEXT,
-  tipo_desconto VARCHAR(20), -- percentual, fixo
-  valor NUMERIC(12,2),
-  data_inicio DATE,
-  data_fim DATE,
-  limite_uso INT DEFAULT 0,
-  ativo BOOLEAN DEFAULT TRUE,
-  criado_em TIMESTAMPTZ DEFAULT NOW()
-);
+-- ==============================================
+-- INSERINDO DADOS NA TABELA PESSOA
+-- ==============================================
+INSERT INTO Pessoa (cpfPessoa, nomePessoa, dataNascimentoPessoa, numero, cep, email, senha_pessoa)
+VALUES
+('11111111111', 'João Silva', '1990-05-14', '123', '87000000', 'joao.silva@email.com', 'senha123'),
+('22222222222', 'Maria Oliveira', '1985-09-22', '456', '87010000', 'maria.oliveira@email.com', 'senha456'),
+('33333333333', 'Carlos Souza', '1992-01-10', '789', '87020000', 'carlos.souza@email.com', 'senha789'),
+('44444444444', 'Ana Lima', '1998-11-02', '321', '87030000', 'ana.lima@email.com', 'senha321'),
+('55555555555', 'Lucas Pereira', '2000-03-17', '654', '87040000', 'lucas.pereira@email.com', 'senha654');
 
--- Pedidos e itens (fluxo de venda)
-CREATE TYPE pedido_status AS ENUM ('pendente','confirmado','processando','enviado','entregue','cancelado','devolvido');
+-- ==============================================
+-- INSERINDO DADOS NA TABELA CARGO
+-- ==============================================
+INSERT INTO Cargo (nomeCargo)
+VALUES
+('Atendente'),
+('Caixa'),
+('Gerente');
 
-CREATE TABLE IF NOT EXISTS pedido (
-  id_pedido UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  id_usuario UUID REFERENCES usuario(id_usuario),
-  id_cliente SERIAL, -- opcional se desejar entidade cliente separada
-  data_pedido TIMESTAMPTZ DEFAULT NOW(),
-  status pedido_status DEFAULT 'pendente',
-  subtotal NUMERIC(12,2) DEFAULT 0,
-  frete NUMERIC(12,2) DEFAULT 0,
-  desconto NUMERIC(12,2) DEFAULT 0,
-  total NUMERIC(12,2) DEFAULT 0,
-  id_endereco_entrega INT REFERENCES endereco(id_endereco),
-  id_endereco_cobranca INT REFERENCES endereco(id_endereco),
-  codigo_rastreamento VARCHAR(200),
-  criado_em TIMESTAMPTZ DEFAULT NOW(),
-  atualizado_em TIMESTAMPTZ DEFAULT NOW()
-);
+-- ==============================================
+-- INSERINDO DADOS NA TABELA FUNCIONARIO
+-- ==============================================
+INSERT INTO Funcionario (PessoaCpfPessoa, salario, CargosIdCargo, porcentagemComissao)
+VALUES
+('11111111111', 2500.00, 1, 2.5),
+('22222222222', 3000.00, 2, 3.0),
+('33333333333', 5000.00, 3, 5.0);
 
-CREATE TRIGGER pedido_set_timestamp
-BEFORE UPDATE ON pedido
-FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+-- ==============================================
+-- INSERINDO DADOS NA TABELA CLIENTE
+-- ==============================================
+INSERT INTO Cliente (PessoaCpfPessoa, rendaCliente, dataDeCadastroCliente)
+VALUES
+('44444444444', 4000.00, '2024-02-15'),
+('55555555555', 2500.00, '2024-03-20');
 
-CREATE TABLE IF NOT EXISTS pedido_item (
-  id_item SERIAL PRIMARY KEY,
-  id_pedido UUID REFERENCES pedido(id_pedido) ON DELETE CASCADE,
-  id_produto INT REFERENCES produto(id_produto),
-  id_variante INT REFERENCES produto_variante(id_variante),
-  quantidade INT NOT NULL,
-  preco_unitario NUMERIC(12,2) NOT NULL
-);
+-- ==============================================
+-- INSERINDO DADOS NA TABELA PRODUTO
+-- ==============================================
+INSERT INTO Produto (nomeProduto, quantidadeEmEstoque, precoUnitario)
+VALUES
+('Linguiça Toscana', 100, 25.90),
+('Linguiça Calabresa', 80, 27.50),
+('Linguiça Caseira', 60, 29.90),
+('Linguiça Apimentada', 50, 30.00);
 
--- Formas de pagamento
-CREATE TABLE IF NOT EXISTS forma_pagamento (
-  id_forma_pagamento SERIAL PRIMARY KEY,
-  nome_forma_pagamento VARCHAR(100) NOT NULL,
-  descricao TEXT
-);
+-- ==============================================
+-- INSERINDO DADOS NA TABELA PEDIDO
+-- ==============================================
+INSERT INTO Pedido (dataDoPedido, ClientePessoaCpfPessoa, FuncionarioPessoaCpfPessoa)
+VALUES
+('2025-10-01', '44444444444', '11111111111'),
+('2025-10-02', '55555555555', '22222222222');
 
--- Pagamentos
-CREATE TABLE IF NOT EXISTS pagamento (
-  id_pagamento UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  id_pedido UUID REFERENCES pedido(id_pedido),
-  id_forma_pagamento INT REFERENCES forma_pagamento(id_forma_pagamento),
-  valor NUMERIC(12,2) NOT NULL,
-  status_pagamento VARCHAR(50), -- ex: autorizado, capturado, cancelado
-  transacao_id VARCHAR(255),
-  pago_em TIMESTAMPTZ,
-  criado_em TIMESTAMPTZ DEFAULT NOW()
-);
+-- ==============================================
+-- INSERINDO DADOS NA TABELA PEDIDOHASPRODUTO
+-- ==============================================
+INSERT INTO PedidoHasProduto (ProdutoIdProduto, PedidoIdPedido, quantidade, precoUnitario)
+VALUES
+(1, 1, 2, 25.90),
+(3, 1, 1, 29.90),
+(2, 2, 3, 27.50),
+(4, 2, 2, 30.00);
 
--- Envio / remessa
-CREATE TABLE IF NOT EXISTS remessa (
-  id_remessa SERIAL PRIMARY KEY,
-  id_pedido UUID REFERENCES pedido(id_pedido) UNIQUE,
-  transportadora VARCHAR(150),
-  tipo_servico VARCHAR(100),
-  codigo_rastreamento VARCHAR(200),
-  custo NUMERIC(12,2),
-  enviado_em TIMESTAMPTZ,
-  entregue_em TIMESTAMPTZ
-);
+-- ==============================================
+-- INSERINDO DADOS NA TABELA PAGAMENTO
+-- ==============================================
+INSERT INTO Pagamento (PedidoIdPedido, valorTotalPagamento)
+VALUES
+(1, 81.70),  -- 2×25.90 + 1×29.90
+(2, 142.50); -- 3×27.50 + 2×30.00
 
--- Avaliações e comentários
-CREATE TABLE IF NOT EXISTS avaliacao_produto (
-  id_avaliacao SERIAL PRIMARY KEY,
-  id_produto INT REFERENCES produto(id_produto),
-  id_usuario UUID REFERENCES usuario(id_usuario),
-  nota INT CHECK (nota BETWEEN 1 AND 5),
-  titulo VARCHAR(200),
-  comentario TEXT,
-  criado_em TIMESTAMPTZ DEFAULT NOW()
-);
+-- ==============================================
+-- INSERINDO DADOS NA TABELA FORMADEPAGAMENTO
+-- ==============================================
+INSERT INTO FormaDePagamento (nomeFormaPagamento)
+VALUES
+('Dinheiro'),
+('Cartão de Crédito'),
+('PIX'),
+('Cartão de Débito');
 
--- Logs simples de auditoria
-CREATE TABLE IF NOT EXISTS audit_log (
-  id_log SERIAL PRIMARY KEY,
-  tabela VARCHAR(100),
-  operacao VARCHAR(20),
-  registro_id TEXT,
-  dados JSONB,
-  realizado_em TIMESTAMPTZ DEFAULT NOW()
-);
-
--- =============================
--- Índices e dados de exemplo
--- =============================
-
-CREATE INDEX IF NOT EXISTS idx_produto_slug ON produto(slug);
-CREATE INDEX IF NOT EXISTS idx_usuario_email ON usuario(email);
-CREATE INDEX IF NOT EXISTS idx_pedido_status ON pedido(status);
-
--- Dados de exemplo básicos
--- Categorias
-INSERT INTO categoria_produto (nome, descricao, slug) VALUES
-  ('Linguiças', 'Variedade de linguiças artesanais', 'linguicas')
-ON CONFLICT (slug) DO NOTHING;
-
--- Produtos
-INSERT INTO produto (sku, nome_produto, slug, descricao, preco_base, id_categoria) VALUES
-  ('TOsc-001', 'Linguiça Toscana', 'linguica-toscana', 'Linguiça toscana tradicional', 29.90, 1)
-ON CONFLICT (sku) DO NOTHING;
-
-INSERT INTO produto_variante (id_produto, nome_variante, sku, preco, estoque) VALUES
-  ((SELECT id_produto FROM produto WHERE sku='TOsc-001'), '500g', 'TOsc-001-500g', 29.90, 50)
-ON CONFLICT DO NOTHING;
-
--- Formas de pagamento
-INSERT INTO forma_pagamento (nome_forma_pagamento, descricao) VALUES
-  ('Dinheiro', 'Pagamento em espécie'),
-  ('Cartão de Crédito', 'Pagamento com cartão'),
-  ('Pix', 'Pagamento via Pix')
-ON CONFLICT DO NOTHING;
-
--- Usuário de exemplo (senha hashed deve ser gerada pela aplicação)
-INSERT INTO pessoa (cpf, nome, data_nascimento, telefone) VALUES
-  ('11111111111', 'João Silva', '1980-01-01', '11999990000')
-ON CONFLICT (cpf) DO NOTHING;
-
-INSERT INTO usuario (cpf, email, senha_hash, nome_exibicao, papel) VALUES
-  ('11111111111', 'joao@example.com', 'HASH_PLACEHOLDER', 'João Silva', 'customer')
-ON CONFLICT (email) DO NOTHING;
-
--- Trigger para atualizar updated_at em tabelas que utilizam updated_at
--- (já criado trigger function no topo; adicionamos triggers conforme necessidade)
-
+-- ==============================================
+-- INSERINDO DADOS NA TABELA PAGAMENTOHASFORMAPAGAMENTO
+-- ==============================================
+INSERT INTO PagamentoHasFormaPagamento (PagamentoIdPedido, FormaPagamentoIdFormaPagamento, valorPago)
+VALUES
+(1, 3, 81.70),   -- Pedido 1 pago via PIX
+(2, 2, 100.00),  -- Pedido 2 pago parcialmente com cartão
+(2, 1, 42.50);   -- Pedido 2 pago com dinheiro (restante)
