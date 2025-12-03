@@ -1,118 +1,310 @@
-/* HEADER ANTIGO SIMPLES */
+/* HEADER - Moderno e Alinhado com Design System */
+
 .site-header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   width: 100%;
-  height: 56px;
-  background: #2d4a2d;
+  height: auto;
+  background: linear-gradient(135deg, #bb3e03 0%, #8c2e02 100%);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 32px;
+  padding: 12px 24px;
   z-index: 1000;
+  box-shadow: 0 4px 12px rgba(187,62,3,0.2);
+  border-bottom: 3px solid #fff;
 }
-header.site-header, .site-header {
+
+header.site-header,
+.site-header {
   visibility: visible !important;
 }
 
+/* Branding */
+.site-brand a {
+  color: white;
+  text-decoration: none;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  transition: all 0.2s ease;
+}
+
+.site-brand a:hover {
+  color: #fff7e6;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Controles do Header */
 .site-controls {
   display: flex;
   align-items: center;
   position: relative;
+  gap: 1rem;
 }
+
 .menu-toggle {
   display: flex;
   align-items: center;
-  background: transparent;
-  border: 1px solid #fff;
-  color: #fff;
-  padding: 6px 16px;
-  border-radius: 4px;
-  font-size: 16px;
+  gap: 8px;
+  background: rgba(255,255,255,0.2);
+  border: 2px solid white;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
+
+.menu-toggle:hover {
+  background: white;
+  color: #bb3e03;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.menu-toggle:active {
+  transform: translateY(0);
+}
+
+.menu-icon {
+  font-size: 1.3rem;
+  display: inline-block;
+}
+
 .menu-label {
-  margin-left: 8px;
-  font-size: 16px;
+  font-size: 1rem;
+  font-weight: 600;
 }
+
+/* Navegação */
 .site-nav {
   position: absolute;
-  top: 100%;
-  left: 0;
-  min-width: 180px;
-  background: #fff;
-  color: #222;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  top: calc(100% + 8px);
+  right: 24px;
+  min-width: 220px;
+  background: white;
+  color: #333;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
   padding: 8px 0;
   display: none;
   z-index: 1001;
+  border: 1px solid rgba(187,62,3,0.1);
+  animation: slideDown 0.3s ease;
 }
+
 .site-nav.open {
   display: block;
 }
+
 .dropdown-menu {
   list-style: none;
   margin: 0;
   padding: 0;
 }
+
 .dropdown-menu li a {
   display: block;
-  padding: 8px 20px;
-  color: #222;
+  padding: 10px 16px;
+  color: #bb3e03;
   text-decoration: none;
-  font-size: 15px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
 }
+
 .dropdown-menu li a:hover {
-  background: #eaeaea;
+  background: #f5e7d3;
+  border-left-color: #bb3e03;
+  color: #8c2e02;
+  padding-left: 20px;
 }
+
 .nav-item.active-nav {
-  background: #2d4a2d;
-  color: #fff !important;
+  background: #f5e7d3;
+  color: #bb3e03 !important;
+  border-left: 3px solid #bb3e03;
+  font-weight: 600;
 }
+
+/* Seção do Usuário */
 .site-user {
   display: flex;
   align-items: center;
+  gap: 12px;
 }
-.site-user button {
-  background: transparent;
-  border: 1px solid #fff;
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: 500;
-  margin-left: 8px;
+
+.site-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: white;
+  border: 2px solid white;
+  overflow: hidden;
 }
-.site-user button:hover {
-  background: #eaeaea;
-  color: #222;
+
+.site-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
+
 .site-user span {
   font-weight: 500;
-  font-size: 15px;
+  font-size: 0.95rem;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-@media (max-width: 768px) {
-  .site-header {
-    padding: 0 8px;
-    height: 48px;
+
+.site-user button {
+  background: rgba(255,255,255,0.2);
+  border: 2px solid white;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.site-user button:hover {
+  background: white;
+  color: #bb3e03;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.site-user button:active {
+  transform: translateY(0);
+}
+
+/* Animação */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
   }
-  .site-nav {
-    min-width: 140px;
-    left: 0;
-    right: auto;
-  }
-  .site-user button {
-    padding: 4px 8px;
-    font-size: 13px;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
+
+/* Ajustes de Body */
 body {
   box-sizing: border-box;
-  padding-top: 56px;
-  background: #f6f6f6;
+  padding-top: 80px;
+}
+
+/* Responsividade Mobile */
+@media (max-width: 768px) {
+  .site-header {
+    padding: 10px 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .site-brand a {
+    font-size: 1.2rem;
+  }
+
+  .menu-toggle {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+  }
+
+  .menu-label {
+    display: none;
+  }
+
+  .site-nav {
+    right: 12px;
+    min-width: 180px;
+  }
+
+  .dropdown-menu li a {
+    padding: 8px 14px;
+    font-size: 0.9rem;
+  }
+
+  .site-user {
+    gap: 8px;
+    order: 3;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .site-user span {
+    display: none;
+  }
+
+  .site-user button {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+
+  body {
+    padding-top: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-header {
+    padding: 8px 10px;
+  }
+
+  .site-brand a {
+    font-size: 1rem;
+  }
+
+  .menu-toggle {
+    padding: 4px 10px;
+    font-size: 0.85rem;
+  }
+
+  .menu-icon {
+    font-size: 1.1rem;
+  }
+
+  .site-nav {
+    min-width: 160px;
+  }
+
+  .dropdown-menu li a {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+
+  .site-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+
+  .site-user button {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
+
+  body {
+    padding-top: 90px;
+  }
 }
