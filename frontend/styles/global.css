@@ -4,13 +4,11 @@
  * - Deve ser incluído em todas as páginas antes dos estilos específicos
  */
 :root {
-  /* Paleta: tons principais verdes + neutros */
-  --color-primary-900: #1a2d1a;
-  --color-primary-700: #2d4a2d;
-  --color-primary-500: #4a7c59;
-  --color-primary-300: #7aad8c;
-  --color-primary-100: #e6f0e6;
-  --color-accent: #40e0d0; /* Tom mais vibrante de turquesa */
+  /* Paleta: tons principais - laranja/marrom (como projeto linguço) */
+  --color-primary: #bb3e03;
+  --color-primary-dark: #8c2e02;
+  --color-primary-light: #f5e7d3;
+  --color-accent: #40e0d0;
   --color-success: #28a745;
   --color-success-light: #d4edda;
   --color-danger: #dc3545;
@@ -20,11 +18,11 @@
   --color-info: #17a2b8;
   --color-info-light: #d1ecf1;
   --color-muted: #f8f9fa;
-  --text-default: #233427;
-  --text-muted: #6c757d;
+  --text-default: #333;
+  --text-muted: #666;
 
   /* Tipografia */
-  --font-family-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-family-sans: 'Segoe UI', Arial, sans-serif;
   --base-font-size: 16px;
   --font-weight-normal: 400;
   --font-weight-medium: 500;
@@ -52,7 +50,8 @@ body {
   font-family: var(--font-family-sans);
   font-size: var(--base-font-size);
   color: var(--text-default);
-  background: #ffffff;
+  background: linear-gradient(135deg, #bb3e03 0%, #f5e7d3 100%);
+  min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -76,10 +75,11 @@ body {
 }
 
 /* Typography */
-h1, h2, h3 { color: var(--color-primary-700); margin-bottom: var(--gap-sm); }
-h1 { font-size: 1.8rem; }
-h2 { font-size: 1.4rem; }
-p, label { line-height: 1.4; }
+h1, h2, h3 { color: var(--color-primary); margin-bottom: var(--gap-sm); }
+h1 { font-size: 2.2rem; font-weight: bold; letter-spacing: 1px; }
+h2 { font-size: 1.6rem; }
+h3 { font-size: 1.2rem; }
+p, label { line-height: 1.6; }
 
 /* Buttons - padrão compartilhado */
 .btn {
@@ -87,77 +87,74 @@ p, label { line-height: 1.4; }
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.625rem 1rem;
+  padding: 0.8rem 1.5rem;
   border-radius: var(--radius-md);
-  border: 1px solid transparent;
+  border: none;
   cursor: pointer;
-  font-weight: var(--font-weight-medium);
-  font-size: 0.875rem;
+  font-weight: 600;
+  font-size: 1rem;
   line-height: 1.5;
-  letter-spacing: 0.025em;
-  transition: all 0.2s ease;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
 }
 
 .btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(187,62,3,0.3);
 }
 
 .btn:active {
   transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .btn:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(74,124,89,0.25);
+  box-shadow: 0 0 0 3px rgba(187,62,3,0.2);
 }
 
 .btn--primary {
-  background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-700));
+  background: linear-gradient(135deg, var(--color-primary), #8c2e02);
   color: white;
-  border: none;
 }
 
 .btn--primary:hover {
-  background: linear-gradient(135deg, var(--color-primary-700), var(--color-primary-900));
+  background: linear-gradient(135deg, #8c2e02, #6a2102);
 }
 
 .btn--secondary {
   background: white;
-  color: var(--color-primary-700);
-  border: 2px solid var(--color-primary-500);
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
 }
 
 .btn--secondary:hover {
-  background: var(--color-primary-100);
-  border-color: var(--color-primary-700);
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
 }
 
 .btn--danger {
-  background: var(--color-danger);
+  background: linear-gradient(135deg, #dc3545, #c82333);
   color: white;
-  border: none;
 }
 
 .btn--danger:hover {
-  background: #c82333;
+  background: linear-gradient(135deg, #c82333, #a71e2a);
 }
 
 .btn--ghost {
   background: transparent;
-  color: var(--color-primary-700);
-  border: 1px solid var(--color-primary-300);
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
 }
 
 .btn--ghost:hover {
-  background: var(--color-primary-100);
-  border-color: var(--color-primary-500);
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
 }
 
-.btn--small { padding: 0.35rem 0.6rem; font-size: 0.9rem; }
+.btn--small { padding: 0.5rem 1rem; font-size: 0.9rem; }
 
 /* Forms */
 .form-group {
@@ -176,22 +173,24 @@ p, label { line-height: 1.4; }
 .form-control {
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 1.5px solid var(--color-primary-100);
+  border: 2px solid var(--color-primary);
   border-radius: var(--radius-md);
   background: white;
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: var(--text-default);
   transition: all 0.2s ease;
 }
 
 .form-control:hover {
-  border-color: var(--color-primary-300);
+  border-color: var(--color-primary);
+  background: #fafafa;
 }
 
 .form-control:focus {
   outline: none;
-  border-color: var(--color-primary-500);
-  box-shadow: 0 0 0 3px rgba(74,124,89,0.15);
+  border-color: var(--color-primary);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(187,62,3,0.15);
 }
 
 .form-control::placeholder {
@@ -302,17 +301,25 @@ p, label { line-height: 1.4; }
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.6rem 1rem;
+  padding: 0.8rem 1.5rem;
   border-radius: var(--radius-sm);
-  border: 1px solid transparent;
+  border: none;
   cursor: pointer;
   font-weight: 600;
-  background: linear-gradient(135deg, var(--color-accent), #40e0d0);
-  color: var(--color-primary-700);
+  background: linear-gradient(135deg, var(--color-primary), #8c2e02);
+  color: white;
+  transition: all 0.3s ease;
 }
-.btn-secondary { background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-700)); color: white; }
-.btn-danger { background: linear-gradient(135deg, #dc3545, #c82333); color: white; }
-.btn-ghost { background: transparent; color: var(--color-primary-700); border-color: rgba(45,74,45,0.08); }
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(187,62,3,0.3);
+}
+.btn-secondary { background: linear-gradient(135deg, #40e0d0, #20b2aa); color: white; font-weight: 600; padding: 0.8rem 1.5rem; border-radius: var(--radius-sm); border: none; cursor: pointer; transition: all 0.3s ease; }
+.btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(64,224,208,0.3); }
+.btn-danger { background: linear-gradient(135deg, #dc3545, #c82333); color: white; font-weight: 600; padding: 0.8rem 1.5rem; border-radius: var(--radius-sm); border: none; cursor: pointer; transition: all 0.3s ease; }
+.btn-danger:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(220,53,69,0.3); }
+.btn-ghost { background: transparent; color: var(--color-primary); border: 2px solid var(--color-primary); padding: 0.6rem 1.2rem; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; transition: all 0.3s ease; }
+.btn-ghost:hover { background: var(--color-primary-light); }
 
 /* Form aliases */
 .form-input { width: 100%; padding: 0.7rem; border: 1px solid rgba(125, 255, 179, 0.15); border-radius: var(--radius-sm); background: white; }

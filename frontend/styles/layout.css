@@ -2,30 +2,53 @@
 
 /* Header */
 header {
-    background: linear-gradient(135deg, var(--verde-escuro), var(--cor-terciaria));
+    background: linear-gradient(135deg, #bb3e03 0%, #8c2e02 100%);
     color: white;
     text-align: center;
-    padding: var(--espacamento-lg) 0;
-    box-shadow: var(--sombra-sm);
+    padding: 24px 0 12px 0;
+    box-shadow: 0 4px 12px rgba(187,62,3,0.2);
+    border-bottom: 4px solid #fff;
+    position: relative;
+    margin-bottom: 24px;
 }
 
 header h1 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    font-size: 2.2rem;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+header .logo {
+    height: 60px;
+    display: block;
+    margin: 0 auto 8px;
+}
+
+header p {
+    color: #fff7e6;
+    font-size: 1.1rem;
+    margin: 6px 0 0 0;
 }
 
 /* Menu de navegação */
 .nav {
-    background: linear-gradient(90deg, var(--cor-secundaria), green);
-    padding: var(--espacamento-xs) 0;
+    background: linear-gradient(90deg, #bb3e03, #8c2e02);
+    padding: 8px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .nav__menu {
     list-style: none;
     display: flex;
     justify-content: center;
-    gap: var(--espacamento-lg);
+    gap: 24px;
+    margin: 0;
+    padding: 0;
 }
 
 .nav__menu-item {
@@ -35,9 +58,16 @@ header h1 {
 .nav__menu-item a {
     color: white;
     text-decoration: none;
-    font-weight: bold;
-    padding: var(--espacamento-xs) var(--espacamento-sm);
+    font-weight: 600;
+    padding: 8px 12px;
     display: block;
+    transition: all 0.2s ease;
+}
+
+.nav__menu-item a:hover {
+    color: #fff7e6;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
 }
 
 /* Submenu */
@@ -46,21 +76,26 @@ header h1 {
     position: absolute;
     top: 100%;
     left: 0;
-    background: var(--bg-principal);
-    border: 1px solid var(--borda-clara);
+    background: white;
+    border: 1px solid rgba(187,62,3,0.2);
+    border-radius: 6px;
     display: none;
     min-width: 180px;
     text-align: left;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .nav__submenu-item a {
-    color: var(--verde-escuro);
-    padding: var(--espacamento-xs) var(--espacamento-sm);
+    color: #bb3e03;
+    padding: 10px 12px;
     display: block;
+    transition: all 0.2s ease;
+    font-weight: 500;
 }
 
 .nav__submenu-item a:hover {
-    background: var(--cor-secundaria);
+    background: #f5e7d3;
+    border-radius: 4px;
 }
 
 .nav__menu-item:hover .nav__submenu {
@@ -70,55 +105,88 @@ header h1 {
 /* Main container */
 main {
     max-width: 1200px;
-    margin: var(--espacamento-lg) auto;
-    padding: 0 var(--espacamento-lg);
+    margin: 24px auto;
+    padding: 0 24px;
     display: grid;
-    gap: var(--espacamento-lg);
+    gap: 24px;
 }
 
 /* Sections */
 section {
-    background: var(--bg-principal);
-    border-radius: var(--borda-raio-xl);
-    padding: var(--espacamento-lg);
-    box-shadow: var(--sombra-md);
-    border: 1px solid var(--borda-clara);
+    background: white;
+    border-radius: 12px;
+    padding: 24px 20px 16px 20px;
+    box-shadow: 0 2px 12px rgba(187,62,3,0.1);
+    border: 1px solid rgba(187,62,3,0.1);
+    margin-bottom: 24px;
 }
 
 section h2 {
-    color: var(--verde-escuro);
-    margin-bottom: var(--espacamento-md);
-    font-size: 1.8rem;
-    border-bottom: 3px solid var(--cor-secundaria);
-    padding-bottom: var(--espacamento-xs);
+    color: #bb3e03;
+    margin-bottom: 16px;
+    font-size: 1.6rem;
+    border-bottom: 3px solid #40e0d0;
+    padding-bottom: 10px;
 }
 
 /* Footer */
 footer {
-    background: var(--verde-escuro);
+    background: #bb3e03;
     color: white;
     text-align: center;
-    padding: var(--espacamento-md);
-    margin-top: var(--espacamento-sm);
+    padding: 16px;
+    margin-top: 24px;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+}
+
+footer p {
+    margin: 0;
+    font-size: 0.95rem;
 }
 
 /* Responsividade */
 @media (max-width: 768px) {
     main {
-        padding: 0 var(--espacamento-sm);
+        padding: 0 12px;
+        margin: 16px auto;
     }
 
     header h1 {
-        font-size: 2rem;
+        font-size: 1.6rem;
+    }
+
+    header {
+        padding: 16px 0 8px 0;
+        margin-bottom: 16px;
     }
 
     section {
-        padding: var(--espacamento-sm);
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+
+    .nav__menu {
+        gap: 12px;
+        flex-wrap: wrap;
     }
 }
 
 @media (max-width: 480px) {
     section {
-        padding: var(--espacamento-sm);
+        padding: 12px;
+        border-radius: 8px;
+    }
+
+    header h1 {
+        font-size: 1.4rem;
+    }
+
+    .nav__menu {
+        gap: 8px;
+    }
+
+    .nav__menu-item a {
+        padding: 6px 10px;
+        font-size: 0.95rem;
     }
 }

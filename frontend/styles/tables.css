@@ -2,9 +2,11 @@
 .table-container {
     max-height: 400px;
     overflow-y: auto;
-    border: 2px solid var(--borda-clara);
-    border-radius: var(--borda-raio-lg);
-    background: var(--bg-principal);
+    border: 1px solid rgba(187,62,3,0.1);
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(187,62,3,0.1);
+    margin-bottom: 1.5rem;
 }
 
 table {
@@ -15,7 +17,7 @@ table {
 
 /* Cabeçalho da tabela */
 table thead {
-    background: linear-gradient(135deg, var(--verde-escuro), var(--cor-terciaria));
+    background: linear-gradient(135deg, #bb3e03 0%, #8c2e02 100%);
     color: white;
     position: sticky;
     top: 0;
@@ -24,9 +26,10 @@ table thead {
 
 table th,
 table td {
-    padding: var(--espacamento-sm);
+    padding: 1rem;
     text-align: left;
-    border-bottom: 1px solid var(--borda-clara);
+    border-bottom: 1px solid #f0e6dc;
+    vertical-align: middle;
 }
 
 table th {
@@ -34,6 +37,11 @@ table th {
     text-transform: uppercase;
     font-size: 0.85rem;
     letter-spacing: 0.5px;
+    color: white;
+}
+
+table td {
+    color: #333;
 }
 
 /* Linhas da tabela */
@@ -42,15 +50,31 @@ table tbody tr {
 }
 
 table tbody tr:hover {
-    background-color: var(--bg-terciario);
+    background-color: #fff7e6;
 }
 
 table tbody tr:nth-child(even) {
-    background-color: var(--bg-secundario);
+    background-color: #fafaf8;
 }
 
 table tbody tr:nth-child(even):hover {
-    background-color: var(--bg-terciario);
+    background-color: #fff7e6;
+}
+
+/* Ações na tabela */
+.table-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.table-actions button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 @media (max-width: 768px) {
@@ -60,6 +84,14 @@ table tbody tr:nth-child(even):hover {
 
     table th,
     table td {
-        padding: var(--espacamento-xs);
+        padding: 0.75rem;
+    }
+
+    .table-actions {
+        flex-direction: column;
+    }
+
+    .table-actions button {
+        width: 100%;
     }
 }

@@ -1,11 +1,37 @@
-/* Wrapper para menu.css — importa o design-system global.
-   O conteúdo original foi movido para: /frontend/styles/_archive/menu.css.original
-   Use esse arquivo apenas para ajustes de compatibilidade do menu. O estilo base do header
-   e navegação passou a ser controlado por /styles/layout.css e /common/header.css.
-*/
+/* Menu CSS - Importa global design system */
 @import url('/styles/global.css');
 
-/* Pequenos ajustes locais para manter compatibilidade com classes existentes */
-.nav__menu { gap: 1.5rem; }
-.nav__menu-item a { padding: 0.5rem 0.75rem; }
+/* Estilos específicos do menu */
+.nav__menu {
+    gap: 2rem;
+    padding: 0;
+}
+
+.nav__menu-item a {
+    padding: 0.8rem 1.2rem;
+    font-weight: 600;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.nav__menu-item a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: #40e0d0;
+    transform: translateX(-50%);
+    transition: width 0.3s ease;
+}
+
+.nav__menu-item a:hover::after {
+    width: 80%;
+}
+
+.nav__menu-item a:hover {
+    color: #fff7e6;
+}
 
