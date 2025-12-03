@@ -1,2 +1,142 @@
-/* CSS para a tabela pagamento */
-/* ...adicione aqui os estilos para pagamento */
+/* Wrapper para pagamento.css — importa o design-system global.
+   O conteúdo original foi movido para: /frontend/styles/_archive/pagamento.css.original
+*/
+@import url('/styles/global.css');
+
+/* Padronização visual baseada em pessoa.css */
+.form-section {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 2rem 2.5rem;
+    margin-bottom: 2rem;
+}
+.form-section h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #2d4a2d;
+}
+.form-group {
+    margin-bottom: 1.25rem;
+    display: flex;
+    flex-direction: column;
+}
+.form-group label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+.form-control {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    background: #fafafa;
+    color: #222;
+    transition: border 0.2s;
+}
+.form-control:focus {
+    border-color: #2d4a2d;
+    outline: none;
+}
+.search-container {
+    margin-bottom: 1.5rem;
+}
+.search-input-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+.btn {
+    border-radius: 6px;
+    padding: 0.5rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.btn-primary {
+    background: #2d4a2d;
+    color: #fff;
+}
+.btn-primary:hover {
+    background: #205020;
+}
+.btn-secondary {
+    background: #eaeaea;
+    color: #222;
+}
+.btn-secondary:hover {
+    background: #d4d4d4;
+}
+.btn-danger {
+    background: #c0392b;
+    color: #fff;
+}
+.btn-danger:hover {
+    background: #a93226;
+}
+.btn-ghost {
+    background: transparent;
+    color: #2d4a2d;
+    border: 1px solid #2d4a2d;
+}
+.btn-ghost:hover {
+    background: #f6f6f6;
+}
+.table-container {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+    margin-top: 2rem;
+}
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1rem;
+}
+.table th, .table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+.table th {
+    background: #f6f6f6;
+    font-weight: 600;
+    color: #2d4a2d;
+}
+.table tbody tr:hover {
+    background: #f9f9f9;
+}
+.actions {
+    display: flex;
+    gap: 0.5rem;
+}
+.message-container {
+    margin-top: 1rem;
+    text-align: center;
+}
+.message {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+.message-info { background: #eafaf1; color: #2d4a2d; }
+.message-success { background: #d4efdf; color: #229954; }
+.message-error { background: #f9ebea; color: #c0392b; }
+
+@media (max-width: 768px) {
+    .form-section {
+        padding: 1rem;
+    }
+    .table th, .table td {
+        padding: 0.5rem;
+        font-size: 0.95rem;
+    }
+}

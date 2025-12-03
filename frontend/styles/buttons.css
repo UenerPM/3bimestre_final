@@ -1,0 +1,109 @@
+/* Botões */
+.btn {
+    padding: 0.8rem 2rem;
+    border: 1px solid var(--verde-escuro);
+    border-radius: var(--borda-raio-md);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 100px;
+}
+
+/* Variantes de botões */
+.btn-primary {
+    background: linear-gradient(135deg, var(--cor-secundaria), #40e0d0);
+    color: var(--verde-escuro);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #40e0d0, #20b2aa);
+    transform: translateY(-2px);
+    box-shadow: var(--sombra-lg);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, var(--verde-medio), #5a8a5a);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #5a8a5a, #4a7a4a);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(106, 160, 111, 0.4);
+}
+
+.btn-save {
+    background: linear-gradient(135deg, #ffa600, #ffd53f);
+    color: white;
+}
+
+.btn-save:hover {
+    background: linear-gradient(135deg, #ffa600, #ffd53f);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(106, 160, 111, 0.4);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #c82333, #a71e2a);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+.btn-cancel {
+    background: linear-gradient(135deg, #6c757d, #5a6268);
+    color: white;
+}
+
+.btn-cancel:hover {
+    background: linear-gradient(135deg, #5a6268, #495057);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+}
+
+/* Tamanhos de botão */
+.btn-small {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+    min-width: auto;
+}
+
+.btn-id {
+    background: var(--cor-secundaria);
+    color: var(--verde-escuro);
+    padding: 0.3rem 0.8rem;
+    font-size: 0.9rem;
+    font-weight: bold;
+    min-width: auto;
+    border-radius: var(--borda-raio-sm);
+}
+
+.btn-id:hover {
+    background: #40e0d0;
+    transform: scale(1.05);
+}
+
+/* Grupo de botões */
+.button-group {
+    display: flex;
+    gap: var(--espacamento-sm);
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: var(--espacamento-sm);
+}
+
+@media (max-width: 768px) {
+    .button-group {
+        flex-direction: column;
+    }
+
+    .btn {
+        min-width: auto;
+        width: 100%;
+    }
+}

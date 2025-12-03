@@ -22,10 +22,13 @@ let ehProfessor = false;
 //essa função só existe para teste inicial
 function nomeUsuario() {
   const combobox = document.getElementById("oUsuario");
+  // Se a combobox não existir nesta página, apenas retorna (script pode ser incluído globalmente)
+  if (!combobox) return;
+  if (!combobox.options || combobox.options.length === 0) return;
   const primeiraOpcao = combobox.options[0];
   primeiraOpcao.text = "Berola da Silva";
 
- //  usuarioAutorizado();
+  //  usuarioAutorizado();
 
 
 }
@@ -63,11 +66,13 @@ function gerenciarPedidos() {
   window.location.href = './pedido/pedido.html';
 }
 
-// Adicionando botão para gerenciar pedidos
+// Adicionando botão para gerenciar pedidos (só se o elemento 'menu' existir na página)
 const menu = document.getElementById('menu');
-const botaoPedidos = document.createElement('button');
-botaoPedidos.innerText = 'Gerenciar Pedidos';
-botaoPedidos.onclick = gerenciarPedidos;
-menu.appendChild(botaoPedidos);
+if (menu) {
+  const botaoPedidos = document.createElement('button');
+  botaoPedidos.innerText = 'Gerenciar Pedidos';
+  botaoPedidos.onclick = gerenciarPedidos;
+  menu.appendChild(botaoPedidos);
+}
 
 // usuarioAutorizado();

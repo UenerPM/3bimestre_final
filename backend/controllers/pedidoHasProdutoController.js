@@ -1,4 +1,5 @@
 const { query } = require('../database');
+const helper = require('../utils/controllerHelper');
 const path = require('path');
 
 // Abre a página do CRUD de pedidoHasProduto
@@ -15,11 +16,11 @@ exports.listarPedidoHasProduto = async (req, res) => {
                  FROM pedidohasproduto php
                  LEFT JOIN produto p ON p.idproduto = php.produtoidproduto
                  LEFT JOIN pedido ped ON ped.idpedido = php.pedidoidpedido`;
-    const result = await query(sql);
-    return res.json(result.rows);
+  const result = await query(sql);
+  return helper.respondList(res, result.rows);
   } catch (error) {
     console.error('Erro ao listar pedidohasproduto:', error);
-    return res.status(500).json({ error: 'Erro interno do servidor' });
+  return helper.respondServerError(res, error);
   }
 }
 
@@ -30,15 +31,15 @@ exports.criarPedidoHasProduto = async (req, res) => {
     const preco = precoUnitario ?? precounitario ?? null;
 
     if (!ProdutoIdProduto || !PedidoIdPedido || !quantidade) {
-      return res.status(400).json({ error: 'produtoId, pedidoId e quantidade são obrigatórios' });
+      return controllerHelper.respondBadRequest(res, 'produtoId, pedidoId e quantidade são obrigatórios');
     }
 
     const sql = 'INSERT INTO pedidohasproduto (produtoidproduto, pedidoidpedido, quantidade, precounitario) VALUES ($1, $2, $3, $4) RETURNING *';
-    const result = await query(sql, [ProdutoIdProduto, PedidoIdPedido, quantidade, preco]);
-    return res.status(201).json(result.rows[0]);
+  const result = await query(sql, [ProdutoIdProduto, PedidoIdPedido, quantidade, preco]);
+  return helper.respondCreated(res, result.rows[0]);
   } catch (error) {
     console.error('Erro ao criar PedidoHasProduto:', error);
-    return res.status(500).json({ error: 'Erro interno do servidor', details: error.message });
+  return helper.respondServerError(res, error);
   }
 }
 
@@ -46,7 +47,7 @@ exports.criarPedidoHasProduto = async (req, res) => {
 exports.obterPedidoHasProduto = async (req, res) => {
   try {
   const pedidoId = req.params.id;
-  if (!pedidoId) return res.status(400).json({ error: 'ID do pedido é obrigatório' });
+  if (!pedidoId) return controllerHelper.respondBadRequest(res, 'ID do pedido é obrigatório');
 
   // retornar informações legíveis juntando com produto e pedido
   const sql = `SELECT php.produtoidproduto AS produtoId, php.pedidoidpedido AS pedidoId, php.quantidade, php.precounitario AS precoUnitario,
@@ -55,11 +56,11 @@ exports.obterPedidoHasProduto = async (req, res) => {
                LEFT JOIN produto p ON p.idproduto = php.produtoidproduto
                LEFT JOIN pedido ped ON ped.idpedido = php.pedidoidpedido
                WHERE php.pedidoidpedido = $1`;
-  const result = await query(sql, [pedidoId]);
-    return res.json(result.rows);
+    const result = await query(sql, [pedidoId]);
+    return helper.respondList(res, result.rows);
   } catch (error) {
     console.error('Erro ao obter PedidoHasProduto:', error);
-    return res.status(500).json({ error: 'Erro interno do servidor' });
+  return helper.respondServerError(res, error);
   }
 }
 
@@ -70,16 +71,16 @@ exports.atualizarPedidoHasProduto = async (req, res) => {
     const preco = precoUnitario ?? precounitario ?? null;
 
     if (!ProdutoIdProduto || !PedidoIdPedido) {
-      return res.status(400).json({ error: 'Chaves produtoId e pedidoId são obrigatórias para atualizar' });
+      return controllerHelper.respondBadRequest(res, 'Chaves produtoId e pedidoId são obrigatórias para atualizar');
     }
 
     const sql = 'UPDATE pedidohasproduto SET quantidade = $1, precounitario = $2 WHERE produtoidproduto = $3 AND pedidoidpedido = $4 RETURNING *';
     const result = await query(sql, [quantidade, preco, ProdutoIdProduto, PedidoIdPedido]);
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Registro não encontrado' });
-    return res.json(result.rows[0]);
+  if (result.rows.length === 0) return helper.respondNotFound(res, 'Registro não encontrado');
+  return helper.respondJson(res, result.rows[0]);
   } catch (error) {
     console.error('Erro ao atualizar PedidoHasProduto:', error);
-    return res.status(500).json({ error: 'Erro interno do servidor', details: error.message });
+  return helper.respondServerError(res, error);
   }
 }
 
@@ -89,7 +90,7 @@ exports.deletarPedidoHasProduto = async (req, res) => {
     const pedidoId = req.params.id;
     const produtoId = req.query.produto; // opcional
 
-    if (!pedidoId) return res.status(400).json({ error: 'ID do pedido é obrigatório' });
+  if (!pedidoId) return helper.respondBadRequest(res, 'ID do pedido é obrigatório');
 
     if (produtoId) {
       await query('DELETE FROM pedidohasproduto WHERE pedidoidpedido = $1 AND produtoidproduto = $2', [pedidoId, produtoId]);
@@ -97,17 +98,17 @@ exports.deletarPedidoHasProduto = async (req, res) => {
       await query('DELETE FROM pedidohasproduto WHERE pedidoidpedido = $1', [pedidoId]);
     }
 
-    return res.status(204).send();
+  return helper.respondNoContent(res);
   } catch (error) {
     console.error('Erro ao deletar PedidoHasProduto:', error);
-    return res.status(500).json({ error: 'Erro interno do servidor' });
+  return helper.respondServerError(res, error);
   }
 }
 
 // Insere múltiplos itens em uma única transação
 exports.criarPedidoHasProdutoBatch = async (req, res) => {
   const { itens } = req.body; // espera { itens: [ { ProdutoIdProduto, PedidoIdPedido, quantidade, precoUnitario } ] }
-  if (!Array.isArray(itens) || itens.length === 0) return res.status(400).json({ error: 'Array de itens é obrigatório' });
+  if (!Array.isArray(itens) || itens.length === 0) return helper.respondBadRequest(res, 'Array de itens é obrigatório');
   const client = await require('../database').getClient();
   try {
     await client.query('BEGIN');
@@ -137,12 +138,12 @@ exports.criarPedidoHasProdutoBatch = async (req, res) => {
       }
     }
     await client.query('COMMIT');
-    return res.status(201).json({ inserted: itens.length });
+  return helper.respondCreated(res, { inserted: itens.length }, false);
   } catch (error) {
     await client.query('ROLLBACK');
     console.error('Erro ao inserir batch de itens:', error);
-    if (error && error.code === '23503') return res.status(400).json({ error: 'Violação de integridade: cliente/produto/pedido inexistente' });
-    return res.status(500).json({ error: 'Erro ao inserir itens em batch', details: error.message });
+  if (error && error.code === '23503') return helper.respondBadRequest(res, 'Violação de integridade: cliente/produto/pedido inexistente');
+  return helper.respondServerError(res, error);
   } finally {
     client.release();
   }

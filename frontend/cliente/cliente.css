@@ -1,2 +1,9 @@
-/* CSS para a tabela cliente */
-/* ...adicione aqui os estilos para cliente */
+/* Wrapper para cliente.css — importa o design-system global.
+	O conteúdo original foi movido para: /frontend/styles/_archive/cliente.css.original
+	Mantenha este arquivo curto: use-o apenas para overrides específicos de compatibilidade.
+*/
+@import url('/styles/global.css');
+
+/* Exemplo de override (descomente quando necessário):
+.cliente-legacy { border-color: rgba(45,74,45,0.06); }
+*/

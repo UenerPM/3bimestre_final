@@ -1,0 +1,16 @@
+/* Wrapper para pedidoHasProduto.css — importa o design-system global.
+   O conteúdo original foi movido para: /frontend/styles/_archive/pedidoHasProduto.css.original 
+*/
+@import url('/styles/global.css');
+
+/* Overrides específicos para itens de pedido */
+.pedido-item {
+    border-bottom: 1px solid var(--border-color);
+    padding: var(--spacing-2);
+}
+
+/* Estilo para linha selecionada - usando variáveis do design-system */
+.selected {
+    background: linear-gradient(90deg, var(--color-success-light), var(--color-success-lighter)) !important;
+    outline: 2px solid var(--color-primary);
+}

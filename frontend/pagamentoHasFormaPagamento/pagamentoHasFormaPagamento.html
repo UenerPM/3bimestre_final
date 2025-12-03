@@ -1,17 +1,91 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Pagamento Has Forma Pagamento</title>
-	<link rel="stylesheet" href="/common/header.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD - Pagamento Has Forma Pagamento</title>
+    <link rel="stylesheet" href="/common/header.css">
+    <link rel="stylesheet" href="/styles/global.css">
+    <link rel="stylesheet" href="/styles/responsive.css">
+    <link rel="stylesheet" href="/pagamentoHasFormaPagamento/pagamentoHasFormaPagamento.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
+
 <body>
-	<main>
-		<h1>PagamentoHasFormaPagamento - placeholder</h1>
-		<div id="messageContainer" class="message-container"></div>
-	</main>
-	<script src="/common/header.js" defer></script>
-	<script src="/pagamentoHasFormaPagamento/pagamentoHasFormaPagamento.js" defer></script>
+    <script src="/common/auth-guard.js" defer></script>
+    <header></header>
+
+    <main class="container section-main">
+        <section class="form-section">
+            <h2>Cadastro de Pagamento Has Forma Pagamento</h2>
+
+            <form id="pagamentoHasFormaPagamentoForm">
+                <div class="search-container">
+                    <label for="searchId">Buscar por ID:</label>
+                    <div class="search-input-group">
+                        <input class="form-control" type="text" id="searchId" placeholder="Digite o ID para buscar">
+                        <button type="button" id="btnBuscar" class="btn btn-ghost">🔍 Buscar</button>
+
+                        <button type="button" id="btnIncluir" class="btn btn-primary">Incluir</button>
+                        <button type="button" id="btnAlterar" class="btn btn-secondary" style="display: none;">Alterar</button>
+                        <button type="button" id="btnExcluir" class="btn btn-danger" style="display: none;">Excluir</button>
+                        <button type="button" id="btnSalvar" class="btn btn-primary" style="display: none;">Salvar</button>
+                        <button type="button" id="btnCancelar" class="btn btn-ghost">Cancelar</button>
+                    </div>
+                </div>
+
+                <fieldset id="formFields">
+                    <legend>Dados do Pagamento Has Forma Pagamento</legend>
+
+                    <div class="form-group">
+                        <label for="idPagamento">Pagamento:</label>
+                        <select class="form-control" id="idPagamento" name="idPagamento" required>
+                            <option value="">-- selecione um pagamento --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="idFormaPagamento">Forma de Pagamento:</label>
+                        <select class="form-control" id="idFormaPagamento" name="idFormaPagamento" required>
+                            <option value="">-- selecione uma forma de pagamento --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="valor">Valor:</label>
+                        <input class="form-control" type="number" step="0.01" id="valor" name="valor" required>
+                    </div>
+                </fieldset>
+            </form>
+        </section>
+
+        <section class="list-section">
+            <div class="table-container table-list">
+                <table id="pagamentoHasFormaPagamentoTable" class="table">
+                    <thead>
+                        <tr>
+                            <th>ID Pagamento</th>
+                            <th>ID Forma Pagamento</th>
+                            <th>Valor</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pagamentoHasFormaPagamentoTableBody">
+                        <!-- Dados serão carregados dinamicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer-main">
+        <p>&copy; 2025 CRUD Pagamento Has Forma Pagamento</p>
+    </footer>
+
+    <div id="messageContainer" class="message-container"></div>
+    <script src="/common/header.js" defer></script>
+    <script src="/pagamentoHasFormaPagamento/pagamentoHasFormaPagamento.js" defer></script>
 </body>
+
 </html>

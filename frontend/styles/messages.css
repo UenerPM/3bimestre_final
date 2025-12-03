@@ -1,0 +1,63 @@
+/* Container de mensagens */
+.message-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+/* Estilos base de mensagem */
+.message {
+    padding: var(--espacamento-sm) var(--espacamento-md);
+    border-radius: var(--borda-raio-md);
+    margin-bottom: var(--espacamento-xs);
+    font-weight: 600;
+    box-shadow: var(--sombra-md);
+    animation: slideIn 0.3s ease;
+}
+
+/* Variantes de mensagem */
+.message.success {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    color: var(--cor-sucesso);
+    border: 1px solid #c3e6cb;
+}
+
+.message.error {
+    background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+    color: var(--cor-erro);
+    border: 1px solid #f5c6cb;
+}
+
+.message.warning {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    color: var(--cor-alerta);
+    border: 1px solid #ffeaa7;
+}
+
+.message.info {
+    background: linear-gradient(135deg, #d1ecf1, var(--cor-secundaria));
+    color: var(--cor-info);
+    border: 1px solid #b8daff;
+}
+
+/* Animação de entrada */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .message-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+    }
+}

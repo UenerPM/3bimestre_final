@@ -1,0 +1,131 @@
+/* Responsividade - Regras de media queries compartilhadas */
+
+/* Tablets e telas menores */
+@media (max-width: 1024px) {
+  .container {
+    padding: var(--gap-md);
+  }
+
+  .form-section,
+  .list-section {
+    padding: var(--gap-md);
+  }
+
+  .table-container {
+    margin: 0 calc(-1 * var(--gap-md));
+    width: calc(100% + var(--gap-md) * 2);
+  }
+
+  .card {
+    padding: var(--gap-md);
+  }
+}
+
+/* Mobile landscape e telas pequenas */
+@media (max-width: 768px) {
+  :root {
+    --gap-lg: 1.5rem;
+    --gap-md: 1rem;
+    --gap-sm: 0.5rem;
+  }
+
+  .container {
+    padding: var(--gap-sm);
+  }
+
+  .form-section,
+  .list-section {
+    padding: var(--gap-sm);
+  }
+
+  .search-container {
+    flex-direction: column;
+    gap: var(--gap-sm);
+  }
+
+  .search-input-group {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btn {
+    width: 100%;
+    margin-bottom: var(--gap-xs);
+  }
+
+  .table-container {
+    margin: 0 calc(-1 * var(--gap-sm));
+    width: calc(100% + var(--gap-sm) * 2);
+  }
+
+  .table th,
+  .table td {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .message {
+    max-width: calc(100vw - 2rem);
+    margin: 0 1rem;
+  }
+}
+
+/* Mobile portrait */
+@media (max-width: 480px) {
+  :root {
+    --base-font-size: 14px;
+  }
+
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
+  h3 { font-size: 1.125rem; }
+
+  .form-group {
+    margin-bottom: var(--gap-sm);
+  }
+
+  .card {
+    padding: var(--gap-sm);
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--gap-xs);
+  }
+}
+
+/* Suporte a dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Ajustar variáveis de cor para modo escuro */
+    --color-primary-900: #e6f0e6;
+    --color-primary-700: #7aad8c;
+    --color-primary-500: #4a7c59;
+    --color-primary-300: #2d4a2d;
+    --color-primary-100: #1a2d1a;
+    
+    --text-default: #e6f0e6;
+    --text-muted: #7aad8c;
+  }
+
+  body {
+    background: #121212;
+    color: var(--text-default);
+  }
+
+  .card,
+  .table-container,
+  .form-control {
+    background: #1e1e1e;
+    border-color: var(--color-primary-300);
+  }
+
+  .table tbody tr:hover {
+    background-color: var(--color-primary-100);
+  }
+
+  .loading-overlay {
+    background: rgba(0,0,0,0.8);
+  }
+}

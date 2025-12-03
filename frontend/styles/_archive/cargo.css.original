@@ -1,0 +1,13 @@
+/* cargo.css - Wrapper importando design system global */
+@import url('../styles/global.css');
+
+/* Apenas sobrescrita de estilos específicos de cargo */
+.cargo-list td {
+    vertical-align: middle;
+}
+
+/* Ajustes específicos dos botões de cargo */
+.btn-id {
+    text-align: left;
+    width: 100%;
+}

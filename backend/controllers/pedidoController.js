@@ -1,66 +1,69 @@
 // Controller para a tabela pedido
 const path = require('path');
 const db = require('../database');
+const helper = require('../utils/controllerHelper');
 
 exports.listarPedidos = async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM Pedido');
-    res.status(200).json(result.rows);
+  const result = await db.query('SELECT * FROM Pedido');
+  return helper.respondList(res, result.rows);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return helper.respondServerError(res, error);
   }
 };
 
 exports.criarPedido = async (req, res) => {
-  const { dataDoPedido, ClientePessoaCpfPessoa, FuncionarioPessoaCpfPessoa } = req.body;
-  // Validação básica
-  if (!dataDoPedido || !ClientePessoaCpfPessoa || !FuncionarioPessoaCpfPessoa) {
-    return res.status(400).json({ error: 'dataDoPedido, ClientePessoaCpfPessoa e FuncionarioPessoaCpfPessoa são obrigatórios' });
-  }
-
   try {
+    const { dataDoPedido, ClientePessoaCpfPessoa, FuncionarioPessoaCpfPessoa } = req.body;
+
+    // validações básicas: aceitar data em ISO ou yyyy-MM-dd
+    if (!dataDoPedido) return helper.respondBadRequest(res, 'dataDoPedido é obrigatória');
+    const d = new Date(dataDoPedido);
+    if (isNaN(d.getTime())) return helper.respondBadRequest(res, 'dataDoPedido em formato inválido');
+    if (!ClientePessoaCpfPessoa) return helper.respondBadRequest(res, 'ClientePessoaCpfPessoa é obrigatório');
+    if (!FuncionarioPessoaCpfPessoa) return helper.respondBadRequest(res, 'FuncionarioPessoaCpfPessoa é obrigatório');
+
     const result = await db.query(
       'INSERT INTO Pedido (dataDoPedido, ClientePessoaCpfPessoa, FuncionarioPessoaCpfPessoa) VALUES ($1, $2, $3) RETURNING *',
-      [dataDoPedido, ClientePessoaCpfPessoa, FuncionarioPessoaCpfPessoa]
+      [d.toISOString(), ClientePessoaCpfPessoa, FuncionarioPessoaCpfPessoa]
     );
-    res.status(201).json(result.rows[0]);
+    return helper.respondCreated(res, result.rows[0]);
   } catch (error) {
-    // Tratar violação de chave estrangeira de forma amigável
-    if (error && error.code === '23503') {
-      return res.status(400).json({ error: 'Cliente ou Funcionário não encontrado (violação de chave estrangeira)' });
-    }
-    res.status(500).json({ error: error.message });
+    if (error && error.code === '23503') return helper.respondBadRequest(res, 'Cliente ou Funcionário não encontrado (violação de chave estrangeira)');
+    return helper.respondServerError(res, error);
   }
 };
 
 exports.atualizarPedido = async (req, res) => {
-  const { id } = req.params;
-  const { dataDoPedido, ClientePessoaCpfPessoa, FuncionarioPessoaCpfPessoa } = req.body;
-  if (!dataDoPedido || !ClientePessoaCpfPessoa || !FuncionarioPessoaCpfPessoa) {
-    return res.status(400).json({ error: 'dataDoPedido, ClientePessoaCpfPessoa e FuncionarioPessoaCpfPessoa são obrigatórios' });
-  }
-
   try {
-    const result = await db.query(
-      'UPDATE Pedido SET dataDoPedido = $1, ClientePessoaCpfPessoa = $2, FuncionarioPessoaCpfPessoa = $3 WHERE idPedido = $4 RETURNING *',
-      [dataDoPedido, ClientePessoaCpfPessoa, FuncionarioPessoaCpfPessoa, id]
-    );
-    res.status(200).json(result.rows[0]);
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) return helper.respondBadRequest(res, 'ID inválido');
+
+    const { dataDoPedido, ClientePessoaCpfPessoa, FuncionarioPessoaCpfPessoa } = req.body;
+    if (!dataDoPedido) return helper.respondBadRequest(res, 'dataDoPedido é obrigatória');
+    const d = new Date(dataDoPedido);
+    if (isNaN(d.getTime())) return helper.respondBadRequest(res, 'dataDoPedido em formato inválido');
+    if (!ClientePessoaCpfPessoa) return helper.respondBadRequest(res, 'ClientePessoaCpfPessoa é obrigatório');
+    if (!FuncionarioPessoaCpfPessoa) return helper.respondBadRequest(res, 'FuncionarioPessoaCpfPessoa é obrigatório');
+
+    const result = await db.query('UPDATE Pedido SET dataDoPedido = $1, ClientePessoaCpfPessoa = $2, FuncionarioPessoaCpfPessoa = $3 WHERE idPedido = $4 RETURNING *', [d.toISOString(), ClientePessoaCpfPessoa, FuncionarioPessoaCpfPessoa, id]);
+  if (result.rows.length === 0) return helper.respondNotFound(res, 'Pedido não encontrado');
+  return helper.respondJson(res, result.rows[0]);
   } catch (error) {
-    if (error && error.code === '23503') {
-      return res.status(400).json({ error: 'Cliente ou Funcionário não encontrado (violação de chave estrangeira)' });
-    }
-    res.status(500).json({ error: error.message });
+    if (error && error.code === '23503') return helper.respondBadRequest(res, 'Cliente ou Funcionário não encontrado (violação de chave estrangeira)');
+    return helper.respondServerError(res, error);
   }
 };
 
 exports.deletarPedido = async (req, res) => {
-  const { id } = req.params;
   try {
-    await db.query('DELETE FROM Pedido WHERE idPedido = $1', [id]);
-    res.status(204).send();
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) return helper.respondBadRequest(res, 'ID inválido');
+    const result = await db.query('DELETE FROM Pedido WHERE idPedido = $1 RETURNING *', [id]);
+    if (result.rows.length === 0) return helper.respondNotFound(res, 'Pedido não encontrado');
+    return helper.respondNoContent(res);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return helper.respondServerError(res, error);
   }
 };
 

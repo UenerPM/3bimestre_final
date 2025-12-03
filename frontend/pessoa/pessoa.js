@@ -14,10 +14,21 @@ const btnCancelar = document.getElementById('btnCancelar');
 const btnSalvar = document.getElementById('btnSalvar');
 const pessoasTableBody = document.getElementById('pessoasTableBody');
 const messageContainer = document.getElementById('messageContainer');
+// Tipo de pessoa - novos elementos (checkbox-based)
+const chkTipoCliente = document.getElementById('chkTipoCliente');
+const chkTipoFuncionario = document.getElementById('chkTipoFuncionario');
+const clienteFields = document.getElementById('clienteFields');
+const funcionarioFields = document.getElementById('funcionarioFields');
+const isClienteHidden = document.getElementById('isClienteHidden');
+const isFuncionarioHidden = document.getElementById('isFuncionarioHidden');
+const selectCargos = document.getElementById('cargosIdCargo');
 
 // Carregar lista de pessoas ao inicializar
-document.addEventListener('DOMContentLoaded', () => {
-    carregarPessoas();
+document.addEventListener('DOMContentLoaded', async () => {
+    await Promise.all([carregarPessoas(), carregarCargosForSelect()]);
+    // sincroniza estado inicial dos checkboxes com hidden fields
+    if (chkTipoCliente) chkTipoCliente.checked = (isClienteHidden && isClienteHidden.value === 'true');
+    if (chkTipoFuncionario) chkTipoFuncionario.checked = (isFuncionarioHidden && isFuncionarioHidden.value === 'true');
 });
 
 // Event Listeners
@@ -27,6 +38,9 @@ btnAlterar.addEventListener('click', alterarPessoa);
 btnExcluir.addEventListener('click', excluirPessoa);
 btnCancelar.addEventListener('click', cancelarOperacao);
 btnSalvar.addEventListener('click', salvarOperacao);
+// listeners para checkboxes de tipo (permitir ambos simultâneos)
+if (chkTipoCliente) chkTipoCliente.addEventListener('change', () => setPersonTypeToggle('cliente'));
+if (chkTipoFuncionario) chkTipoFuncionario.addEventListener('change', () => setPersonTypeToggle('funcionario'));
 
 mostrarBotoes(true, false, false, false, false, false);// mostrarBotoes(btBuscar, btIncluir, btAlterar, btExcluir, btSalvar, btCancelar)
 bloquearCampos(false);//libera pk e bloqueia os demais campos
@@ -56,10 +70,18 @@ function bloquearCampos(bloquearPrimeiro) {
 // Função para limpar formulário
 function limparFormulario() {
     form.reset();
-    const cbAvaliador = document.getElementById('checkboxAvaliador');
-    if (cbAvaliador) cbAvaliador.checked = false;
-    const cbAvaliado = document.getElementById('checkboxAvaliado');
-    if (cbAvaliado) cbAvaliado.checked = false;
+    // esconder campos específicos e resetar flags
+    if (clienteFields) clienteFields.style.display = 'none';
+    if (funcionarioFields) funcionarioFields.style.display = 'none';
+    if (isClienteHidden) isClienteHidden.value = 'false';
+    if (isFuncionarioHidden) isFuncionarioHidden.value = 'false';
+    if (chkTipoCliente) chkTipoCliente.checked = false;
+    if (chkTipoFuncionario) chkTipoFuncionario.checked = false;
+    // limpar campos específicos
+    const fTel = document.getElementById('telefone'); if (fTel) fTel.value = '';
+    const fEnd = document.getElementById('endereco'); if (fEnd) fEnd.value = '';
+    const fCargo = document.getElementById('cargo'); if (fCargo) fCargo.value = '';
+    const fSal = document.getElementById('salario'); if (fSal) fSal.value = '';
 }
 
 
@@ -104,8 +126,9 @@ async function buscarPessoa() {
         const response = await fetch(`${API_BASE_URL}/pessoa/${cpfpessoa}`);
 
         if (response.ok) {
-            const pessoa = await response.json();
-            preencherFormulario(pessoa);
+                const pessoa = await response.json();
+                // aceitar camelCase ou snake_case
+                preencherFormulario(pessoa);
 
             mostrarBotoes(true, false, true, true, false, false);
             mostrarMensagem('Pessoa encontrada!', 'success');
@@ -127,24 +150,82 @@ async function buscarPessoa() {
 
 // Função para preencher formulário com dados da pessoa
 function preencherFormulario(pessoa) {
-    currentPersonId = pessoa.cpfpessoa; // Corrigido para usar cpfpessoa
-    document.getElementById('cpfpessoa').value = pessoa.cpfpessoa; // Corrigido para exibir o CPF no campo correto
-    document.getElementById('nomepessoa').value = pessoa.nomepessoa || '';
-    document.getElementById('email').value = pessoa.email || '';
-    document.getElementById('senha_pessoa').value = pessoa.senha_pessoa || '';
-    document.getElementById('data_acesso').value = pessoa.primeiro_acesso_pessoa ? 'true' : 'false';
+    // suporte camelCase e snake_case
+    currentPersonId = pessoa.cpfPessoa ?? pessoa.cpfpessoa;
+    document.getElementById('cpfpessoa').value = pessoa.cpfPessoa ?? pessoa.cpfpessoa ?? '';
+    document.getElementById('nomepessoa').value = pessoa.nomePessoa ?? pessoa.nomepessoa ?? '';
+    document.getElementById('email').value = pessoa.email ?? '';
+    document.getElementById('senha_pessoa').value = pessoa.senhaPessoa ?? pessoa.senha_pessoa ?? '';
+    document.getElementById('data_acesso').value = (pessoa.primeiroAcessoPessoa ?? pessoa.primeiro_acesso_pessoa) ? 'true' : 'false';
 
     // Formatação da data para input type="date"
-    if (pessoa.datanascimentopessoa) {
-        const data = new Date(pessoa.datanascimentopessoa);
+    const dataStr = pessoa.dataNascimentoPessoa ?? pessoa.datanascimentopessoa;
+    if (dataStr) {
+        const data = new Date(dataStr);
         const dataFormatada = data.toISOString().split('T')[0];
         document.getElementById('datanascimentopessoa').value = dataFormatada;
     } else {
         document.getElementById('datanascimentopessoa').value = '';
     }
 
-    document.getElementById('numero').value = pessoa.numero || ''; // Corrigido para preencher o campo número
-    document.getElementById('cep').value = pessoa.cep || ''; // Corrigido para preencher o campo CEP
+    // preencher flags de tipo (Cliente / Funcionário) quando disponíveis
+    try {
+        const isCliente = pessoa.isCliente ?? pessoa.is_cliente ?? pessoa.cliente ?? false;
+        const isFuncionario = pessoa.isFuncionario ?? pessoa.is_funcionario ?? pessoa.funcionario ?? false;
+        // aplicar visual (botões) e campos
+    // permite ambos: aplica toggles conforme flags retornadas
+    if (isCliente) setPersonTypeToggleApply('cliente', true);
+    if (isFuncionario) setPersonTypeToggleApply('funcionario', true);
+    if (!isCliente && !isFuncionario) setPersonTypeToggleApply(null, false);
+        // popular campos específicos quando disponíveis
+        // popular campos cliente/funcionario com nomes compatíveis ao service
+        if (document.getElementById('rendaCliente')) document.getElementById('rendaCliente').value = pessoa.rendaCliente ?? '';
+        if (document.getElementById('dataDeCadastroCliente')) document.getElementById('dataDeCadastroCliente').value = pessoa.dataDeCadastroCliente ?? '';
+        if (document.getElementById('cargosIdCargo')) document.getElementById('cargosIdCargo').value = pessoa.cargosIdCargo ?? '';
+        if (document.getElementById('salario')) document.getElementById('salario').value = pessoa.salario ?? '';
+        if (document.getElementById('porcentagemComissao')) document.getElementById('porcentagemComissao').value = pessoa.porcentagemComissao ?? '';
+    } catch (e) {
+        // não crítico
+    }
+
+    document.getElementById('numero').value = pessoa.numero ?? '';
+    document.getElementById('cep').value = pessoa.cep ?? '';
+}
+
+// ----- Funções para alternância de tipo de pessoa -----
+// toggle independente para permitir ambos os papéis
+function setPersonTypeToggle(type) {
+    if (type === 'cliente') {
+        const now = chkTipoCliente && chkTipoCliente.checked;
+        if (clienteFields) clienteFields.style.display = now ? 'block' : 'none';
+        if (isClienteHidden) isClienteHidden.value = now ? 'true' : 'false';
+        console.log('Tipo cliente toggled:', now);
+    } else if (type === 'funcionario') {
+        const now = chkTipoFuncionario && chkTipoFuncionario.checked;
+        if (funcionarioFields) funcionarioFields.style.display = now ? 'block' : 'none';
+        if (isFuncionarioHidden) isFuncionarioHidden.value = now ? 'true' : 'false';
+        console.log('Tipo funcionario toggled:', now);
+    }
+}
+
+// aplicar estado programaticamente (usar ao preencher formulário)
+function setPersonTypeToggleApply(type, value) {
+    if (type === 'cliente') {
+        if (chkTipoCliente) chkTipoCliente.checked = Boolean(value);
+        if (clienteFields) clienteFields.style.display = value ? 'block' : 'none';
+        if (isClienteHidden) isClienteHidden.value = value ? 'true' : 'false';
+    } else if (type === 'funcionario') {
+        if (chkTipoFuncionario) chkTipoFuncionario.checked = Boolean(value);
+        if (funcionarioFields) funcionarioFields.style.display = value ? 'block' : 'none';
+        if (isFuncionarioHidden) isFuncionarioHidden.value = value ? 'true' : 'false';
+    } else {
+        if (chkTipoCliente) chkTipoCliente.checked = false;
+        if (chkTipoFuncionario) chkTipoFuncionario.checked = false;
+        if (clienteFields) clienteFields.style.display = 'none';
+        if (funcionarioFields) funcionarioFields.style.display = 'none';
+        if (isClienteHidden) isClienteHidden.value = 'false';
+        if (isFuncionarioHidden) isFuncionarioHidden.value = 'false';
+    }
 }
 
 
@@ -186,16 +267,36 @@ async function excluirPessoa() {
 
 async function salvarOperacao() {
     const formData = new FormData(form);
+    // enviar em camelCase; backend aceita vários formatos
+    // Montar payload com nomes exatos esperados pelo backend (snake/camel conforme serviço)
     const pessoa = {
         cpfpessoa: searchId.value.trim(),
         nomepessoa: formData.get('nomepessoa') || '',
         email: formData.get('email') || '',
         senha_pessoa: formData.get('senha_pessoa') || '',
-        primeiro_acesso_pessoa: formData.get('data_acesso') === 'true',
+        data_acesso: formData.get('data_acesso') === 'true',
         datanascimentopessoa: formData.get('datanascimentopessoa') || null,
         numero: formData.get('numero') || '',
         cep: formData.get('cep') || ''
     };
+
+    // incluir flags de tipo (cliente / funcionário) no payload (baseado em hidden fields set pelos botões)
+    const isClienteFlag = isClienteHidden ? isClienteHidden.value === 'true' : false;
+    const isFuncionarioFlag = isFuncionarioHidden ? isFuncionarioHidden.value === 'true' : false;
+    pessoa.isCliente = !!isClienteFlag;
+    pessoa.isFuncionario = !!isFuncionarioFlag;
+
+    // incluir campos específicos apenas quando relevantes
+    if (isClienteFlag) {
+        // nomes esperados pelo serviço
+        pessoa.rendaCliente = formData.get('rendaCliente') ? parseFloat(formData.get('rendaCliente')) : null;
+        pessoa.dataDeCadastroCliente = formData.get('dataDeCadastroCliente') || null;
+    }
+    if (isFuncionarioFlag) {
+        pessoa.salario = formData.get('salario') ? parseFloat(formData.get('salario')) : null;
+        pessoa.cargosIdCargo = formData.get('cargosIdCargo') || null;
+        pessoa.porcentagemComissao = formData.get('porcentagemComissao') ? parseFloat(formData.get('porcentagemComissao')) : null;
+    }
 
     // Truncar numero e cep para 10 caracteres
     pessoa.numero = pessoa.numero.slice(0, 10); // Trunca para 10 caracteres
@@ -315,27 +416,113 @@ async function carregarPessoas() {
     }
 }
 
+// Carregar lista de cargos para o select de funcionário
+async function carregarCargosForSelect() {
+    if (!selectCargos) return;
+    try {
+        const response = await fetch(`${API_BASE_URL}/cargo`);
+        if (!response.ok) return;
+        const cargos = await response.json();
+        // limpar e popular
+        selectCargos.innerHTML = '<option value="">-- selecione um cargo --</option>';
+        cargos.forEach(c => {
+            const id = c.idcargo || c.id || '';
+            const nome = c.nomecargo || c.nome || `Cargo ${id}`;
+            const opt = document.createElement('option');
+            opt.value = id;
+            opt.textContent = `${id} - ${nome}`;
+            selectCargos.appendChild(opt);
+        });
+    } catch (err) {
+        console.error('Erro ao carregar cargos para select:', err);
+    }
+}
+
 // Função para renderizar tabela de pessoas
 function renderizarTabelaPessoas(pessoas) {
     pessoasTableBody.innerHTML = '';
 
     pessoas.forEach(pessoa => {
         const row = document.createElement('tr');
+        
+        // Formatar badges de tipo (Cliente/Funcionário)
+        const tipos = [];
+        if (pessoa.isCliente || pessoa.is_cliente || pessoa.cliente) {
+            tipos.push('<span class="badge badge-cliente">Cliente</span>');
+        }
+        if (pessoa.isFuncionario || pessoa.is_funcionario || pessoa.funcionario) {
+            tipos.push('<span class="badge badge-funcionario">Funcionário</span>');
+        }
+
+        // Formatar valores monetários
+        const formatMoney = (value) => {
+            if (value == null) return '-';
+            return new Intl.NumberFormat('pt-BR', { 
+                style: 'currency', 
+                currency: 'BRL' 
+            }).format(value);
+        };
+
         row.innerHTML = `
             <td>
-                <button class="btn-id" onclick="selecionarPessoa('${pessoa.cpfpessoa}')">
+                <button class="btn-action" onclick="selecionarPessoa('${pessoa.cpfpessoa}')">
                     ${pessoa.cpfpessoa}
                 </button>
             </td>
-            <td>${pessoa.nomepessoa}</td>
-            <td>${pessoa.email}</td>
-            <td>${pessoa.data_acesso ? 'Sim' : 'Não'}</td>
-            <td>${formatarData(pessoa.datanascimentopessoa)}</td>
-            <td>${pessoa.cep}</td>
-            <td>${pessoa.numero}</td>
+            <td>${pessoa.nomepessoa || '-'}</td>
+            <td>${pessoa.email || '-'}</td>
+            <td>${tipos.join(' ')}</td>
+            <td>${pessoa.cargo?.nomecargo || pessoa.cargosIdCargo || '-'}</td>
+            <td>${formatMoney(pessoa.salario)}</td>
+            <td>${pessoa.porcentagemComissao ? pessoa.porcentagemComissao + '%' : '-'}</td>
+            <td>${formatMoney(pessoa.rendaCliente)}</td>
+            <td>${pessoa.dataDeCadastroCliente ? formatarData(pessoa.dataDeCadastroCliente) : '-'}</td>
+            <td>${formatarData(pessoa.datanascimentopessoa) || '-'}</td>
+            <td>${pessoa.cep || '-'}</td>
+            <td>${pessoa.numero || '-'}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn-action btn-view" onclick="visualizarPessoa('${pessoa.cpfpessoa}')" title="Visualizar">
+                        👁️
+                    </button>
+                    <button class="btn-action btn-edit" onclick="editarPessoa('${pessoa.cpfpessoa}')" title="Editar">
+                        ✏️
+                    </button>
+                    <button class="btn-action btn-delete" onclick="confirmarExclusao('${pessoa.cpfpessoa}')" title="Excluir">
+                        🗑️
+                    </button>
+                </div>
+            </td>
         `;
         pessoasTableBody.appendChild(row);
     });
+}
+
+// Funções auxiliares para ações da tabela
+function visualizarPessoa(cpf) {
+    searchId.value = cpf;
+    buscarPessoa();
+}
+
+function editarPessoa(cpf) {
+    searchId.value = cpf;
+    buscarPessoa().then(() => alterarPessoa());
+}
+
+function confirmarExclusao(cpf) {
+    if (confirm(`Tem certeza que deseja excluir a pessoa com CPF ${cpf}?`)) {
+        searchId.value = cpf;
+        buscarPessoa().then(() => excluirPessoa());
+    }
+}
+
+function getPersonTypeLabel(pessoa) {
+    const isCliente = pessoa.isCliente ?? pessoa.is_cliente ?? pessoa.cliente;
+    const isFuncionario = pessoa.isFuncionario ?? pessoa.is_funcionario ?? pessoa.funcionario;
+    const types = [];
+    if (isCliente) types.push('Cliente');
+    if (isFuncionario) types.push('Funcionário');
+    return types.length ? types.join(', ') : '';
 }
 
 // Função para selecionar pessoa da tabela

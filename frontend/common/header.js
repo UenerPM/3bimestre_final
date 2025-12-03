@@ -9,23 +9,33 @@
     document.head.appendChild(link);
   }
 
-  // marcação do header
+  // marcação do header (menu simples via dropdown)
   const navHtml = `
   <header class="site-header">
-    <div class="site-brand"><a href="/menu.html">CandyShop</a></div>
-    <button id="menuToggle" class="menu-toggle" aria-expanded="false" aria-label="Abrir menu">☰</button>
-    <nav class="site-nav" id="siteNav">
-      <a href="/menu.html" data-nav>Menu</a>
-      <a href="/pessoa/pessoa.html" data-nav data-protected>Pessoa</a>
-      <a href="/cargo/cargo.html" data-nav data-protected>Cargo</a>
-      <a href="/produto/produto.html" data-nav data-protected>Produto</a>
-      <a href="/pedido/pedido.html" data-nav data-protected>Pedido</a>
-      <a href="/pedidoHasProduto/pedidoHasProduto.html" data-nav data-protected>Pedido-Produtos</a>
-      <a href="/funcionario/funcionario.html" data-nav data-protected>Funcionário</a>
-      <a href="/pagamento/pagamento.html" data-nav data-protected>Pagamento</a>
-      <a href="/formaPagamento/formaPagamento.html" data-nav data-protected>Forma Pagto</a>
-      <a href="/cliente/cliente.html" data-nav data-protected>Cliente</a>
-    </nav>
+    <div class="site-brand">
+      <a href="/menu.html">CandyShop</a>
+    </div>
+
+    <div class="site-controls">
+      <button id="menuToggle" class="menu-toggle" aria-expanded="false" aria-label="Abrir menu">
+        <span class="menu-icon">☰</span>
+        <span class="menu-label">Menu</span>
+      </button>
+
+      <nav class="site-nav" id="siteNav" role="menu" aria-hidden="true">
+        <ul class="dropdown-menu">
+          <li><a href="/dashboard/dashboard.html" data-nav data-protected class="nav-item" role="menuitem">📊 Dashboard</a></li>
+          <li><a href="/pessoa/pessoa.html" data-nav data-protected class="nav-item" role="menuitem">Pessoa</a></li>
+          <li><a href="/produto/produto.html" data-nav data-protected class="nav-item" role="menuitem">Produto</a></li>
+          <li><a href="/cargo/cargo.html" data-nav data-protected class="nav-item" role="menuitem">Cargo</a></li>
+          <li><a href="/pedido/pedido.html" data-nav data-protected class="nav-item" role="menuitem">Pedido</a></li>
+          <li><a href="/pedidoHasProduto/pedidoHasProduto.html" data-nav data-protected class="nav-item" role="menuitem">Pedido_has_Produto</a></li>
+          <li><a href="/pagamento/pagamento.html" data-nav data-protected class="nav-item" role="menuitem">Pagamento</a></li>
+          <li><a href="/formaPagamento/formaPagamento.html" data-nav data-protected class="nav-item" role="menuitem">Forma de Pagamento</a></li>
+        </ul>
+      </nav>
+    </div>
+
     <div class="site-user" aria-live="polite">
       <div id="siteAvatar" class="site-avatar" style="display:none" title=""></div>
       <span id="siteUserName" style="display:none;"></span>
@@ -37,15 +47,28 @@
   // inserir no topo do body se não existir
   function insertHeader() {
     if (!document.body) return;
-    if (document.querySelector('.site-header')) return; // já injetado
-    const container = document.createElement('div');
-    container.innerHTML = navHtml;
-    document.body.insertBefore(container.firstElementChild, document.body.firstChild);
-    // garantir estado inicial do menu
+    const existing = document.querySelector('.site-header');
+    if (existing) {
+      // se já contém nós filhos, assume que o header está completo
+      if (existing.children && existing.children.length > 0) {
+        // nada a fazer
+      } else {
+        // substituir header vazio pelo markup enriquecido
+        const container = document.createElement('div');
+        container.innerHTML = navHtml;
+        const newHeader = container.firstElementChild;
+        existing.parentNode.replaceChild(newHeader, existing);
+      }
+    } else {
+      const container = document.createElement('div');
+      container.innerHTML = navHtml;
+      document.body.insertBefore(container.firstElementChild, document.body.firstChild);
+    }
+    // garantir estado inicial do menu (acessibilidade)
     const btn = document.getElementById('menuToggle');
     const nav = document.getElementById('siteNav');
-    if (btn) btn.textContent = '☰';
-    if (nav) nav.style.display = 'none';
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+    if (nav) nav.setAttribute('aria-hidden', 'true');
   }
 
   // API helpers
@@ -56,6 +79,14 @@
       const res = await fetch(API_BASE + '/login/verificaSeUsuarioEstaLogado', { method: 'POST', credentials: 'include' });
       if (!res.ok) return null;
       const data = await res.json();
+      // normalize to camelCase fields expected by frontend
+      if (data) {
+        if (data.avatar_url && !data.avatarUrl) data.avatarUrl = data.avatar_url;
+        if (data.avatarUrl && !data.avatar_url) data.avatar_url = data.avatarUrl;
+        // isFuncionario may come as isFuncionario or is_funcionario (rare) — normalize both ways
+        if (typeof data.is_funcionario === 'boolean' && typeof data.isFuncionario === 'undefined') data.isFuncionario = data.is_funcionario;
+        if (typeof data.isFuncionario === 'boolean' && typeof data.is_funcionario === 'undefined') data.is_funcionario = data.isFuncionario;
+      }
       return data;
     } catch (err) {
       console.error('Erro ao buscar usuário:', err);
@@ -76,8 +107,13 @@
 
     const data = await fetchUsuario();
     if (data && data.status === 'ok') {
-      // show protected links
-      document.querySelectorAll('a[data-protected]').forEach(a => a.style.display = 'inline-block');
+      // show protected links only if usuário é funcionário
+      if (data.isFuncionario) {
+        document.querySelectorAll('a[data-protected]').forEach(a => a.style.display = 'inline-block');
+      } else {
+        // garante que não apareçam links CRUD para usuários não-funcionários
+        document.querySelectorAll('a[data-protected]').forEach(a => a.style.display = 'none');
+      }
 
       // show avatar + name + logout
       const nome = data.nome || '';
@@ -85,10 +121,10 @@
       userNameEl.style.display = 'inline-block';
       userNameEl.title = nome;
       avatarEl.innerHTML = '';
-      if (data.avatar_url) {
+      if (data.avatarUrl) {
         // show image
         const img = document.createElement('img');
-        img.src = data.avatar_url;
+        img.src = data.avatarUrl;
         img.alt = nome;
         img.className = 'site-avatar-img';
         img.onerror = () => {
@@ -104,8 +140,8 @@
         avatarEl.style.display = 'inline-flex';
       }
 
-      btnLogin.style.display = 'none';
-      btnLogout.style.display = 'inline-block';
+  btnLogin.style.display = 'none';
+  btnLogout.style.display = 'inline-block';
       btnLogout.addEventListener('click', async () => {
         try {
           await fetch('/login/logout', { method: 'POST', credentials: 'include' });
@@ -157,42 +193,57 @@
     }
   }
 
-  // Menu toggle for small screens
+  // Menu toggle (dropdown) simples
   function setupMenuToggle() {
     try {
       const btn = document.getElementById('menuToggle');
       const nav = document.getElementById('siteNav');
       if (!btn || !nav) return;
-      btn.addEventListener('click', () => {
-        const expanded = btn.getAttribute('aria-expanded') === 'true';
-        btn.setAttribute('aria-expanded', String(!expanded));
-        if (expanded) {
-          nav.style.display = '';
+
+      let menuOpen = false;
+      function openMenu() {
+        nav.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+        nav.setAttribute('aria-hidden', 'false');
+        menuOpen = true;
+        // foco acessível
+        const first = nav.querySelector('a');
+        if (first) first.focus();
+      }
+      function closeMenu() {
+        nav.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+        nav.setAttribute('aria-hidden', 'true');
+        menuOpen = false;
+      }
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (menuOpen) {
+          closeMenu();
         } else {
-          nav.style.display = 'flex';
+          openMenu();
         }
       });
-      // close menu when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!btn.contains(e.target) && !nav.contains(e.target)) {
-          btn.setAttribute('aria-expanded', 'false');
-          if (window.innerWidth <= 768) nav.style.display = 'none';
-        }
+      // fechar ao clicar fora
+      document.addEventListener('mousedown', (e) => {
+        if (menuOpen && !nav.contains(e.target) && !btn.contains(e.target)) closeMenu();
       });
-      // initial responsive state
-      if (window.innerWidth <= 768) nav.style.display = 'none';
-      window.addEventListener('resize', () => {
-        if (window.innerWidth > 768) {
-          nav.style.display = 'flex';
-          btn.setAttribute('aria-expanded', 'false');
-        } else {
-          nav.style.display = 'none';
-        }
-        // recompute padding when layout may change
-        if (typeof adjustBodyPadding === 'function') adjustBodyPadding();
+      // fechar com ESC
+      document.addEventListener('keydown', (e) => {
+        if (menuOpen && e.key === 'Escape') closeMenu();
       });
+      // fechar ao clicar em link
+      nav.addEventListener('click', (e) => {
+        if (e.target.tagName === 'A') closeMenu();
+      });
+      // garantir estado inicial
+      closeMenu();
+      // ajustar padding-top quando necessário
+      if (typeof adjustBodyPadding === 'function') {
+        window.addEventListener('resize', adjustBodyPadding);
+      }
     } catch (e) {
-      // non-critical
+      console.warn('Menu toggle setup failed:', e);
     }
   }
 

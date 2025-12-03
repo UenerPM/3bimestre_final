@@ -6,9 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redirecionando...</title>
     <script>
-        // Redirecionamento automático após carregar a página
+        // Redirecionamento automático após carregar a página para a tela de login
+        // Ajuste: antes redirecionava direto para o menu, agora envia para a página de login
         window.onload = function () {
-            window.location.href = "./frontend/menu.html";
+            // usa caminho relativo para a página de login do frontend
+            window.location.href = "./frontend/login/login.html";
         };
     </script>
     <style>
@@ -42,9 +44,9 @@
 </head>
 
 <body>
-    <h1>Redirecionando para o Menu</h1>
+    <h1>Redirecionando para o Login</h1>
     <div class="loader"></div>
-    <p>Se o redirecionamento não funcionar automaticamente, <a href="frontend/menu.html">clique aqui</a>.</p>
+    <p>Se o redirecionamento não funcionar automaticamente, <a href="frontend/login/login.html">clique aqui</a>.</p>
 </body>
 
 </html>

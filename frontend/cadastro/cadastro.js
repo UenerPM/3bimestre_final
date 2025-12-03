@@ -6,6 +6,7 @@ const btnCancelar = document.getElementById('btnCancelar');
 btnCancelar.addEventListener('click', () => {
   form.reset();
   msgEl.textContent = '';
+  window.location.href = '/pessoa/pessoa.html';
 });
 
 function validarCPF(cpf) {

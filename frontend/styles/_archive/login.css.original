@@ -1,0 +1,38 @@
+/* Original login.css backed up automatically */
+
+/* Estilos para a página de login */
+
+/* harmonize login page with site theme */
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  background: linear-gradient(180deg, #f5f7f6 0%, #eef3ef 100%);
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.login-card {
+  width: 360px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(16,24,40,0.08);
+  padding: 24px;
+}
+
+.login-card h2 { margin: 0 0 12px 0; color: #183128; text-align: center; }
+
+.login-field { margin-bottom: 12px; }
+.login-field input { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; }
+
+.login-actions { margin-top: 8px; }
+.login-actions button { width: 100%; padding: 10px 12px; border-radius: 8px; border: none; background: #2d4a2d; color: white; font-weight: 600; cursor: pointer; }
+.login-actions button:hover { filter: brightness(0.95); }
+
+.links { margin-top: 12px; text-align: center; font-size: 14px; }
+.links a { color: #2d4a2d; text-decoration: none; font-weight: 600; }
+
+.message { margin: 10px 0; padding: 10px; border-radius: 6px; font-size: 14px; }
+.message.error { background: #fff1f2; color: #7f1d1d; }

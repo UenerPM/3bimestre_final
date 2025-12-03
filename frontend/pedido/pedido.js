@@ -18,8 +18,8 @@ const messageContainer = document.getElementById('messageContainer');
 // Carregar lista de pedidos ao inicializar
 document.addEventListener('DOMContentLoaded', () => {
     carregarPedidos();
-    carregarClientes();
-    carregarFuncionarios();
+    // agora usamos /pessoa para popular os selects de cliente e funcionário (consolidação)
+    carregarPessoasParaPedido();
 });
 
 // Event Listeners
@@ -57,60 +57,35 @@ function limparFormulario() {
     form.reset();
 }
 
-// Carregar clientes para popular o combobox de CPF do cliente
-async function carregarClientes() {
+// Carregar pessoas para popular os comboboxes de Cliente e Funcionário no pedido
+async function carregarPessoasParaPedido() {
     try {
-        const response = await fetch(`${API_BASE_URL}/cliente`);
+        const response = await fetch(`${API_BASE_URL}/pessoa`);
         if (!response.ok) {
-            console.warn('Não foi possível carregar clientes:', response.statusText);
+            console.warn('Não foi possível carregar pessoas:', response.statusText);
             return;
         }
-        const clientes = await response.json();
-            console.log('clientes recebidos:', clientes);
-            const select = document.getElementById('ClientePessoaCpfPessoa');
-        if (!select) return;
-        // Limpa opções (mantém a primeira de placeholder)
-        select.innerHTML = '<option value="">-- selecione um cliente --</option>';
-            clientes.forEach(c => {
-                // tentar vários aliases para CPF e nome (robustez contra diferentes formatos)
-                const cpf = (c.pessoacpfpessoa || c.pessoacpf || c.pessoacpfPessoa || c.cpfpessoa || c.cpf || c.pessoaCpfPessoa || c.cpfPessoa || c.cpfPessoa) && String(c.pessoacpfpessoa || c.pessoacpf || c.pessoacpfPessoa || c.cpfpessoa || c.cpf || c.pessoaCpfPessoa || c.cpfPessoa || c.cpfPessoa).trim();
-                const name = (c.nomepessoa || c.nome || c.name || c.nomePessoa) && String(c.nomepessoa || c.nome || c.name || c.nomePessoa).trim();
-                if (!cpf) return; // pula entradas sem cpf identificável
-                const option = document.createElement('option');
-                option.value = cpf;
-                option.textContent = `${cpf}${name ? ' - ' + name : ''}`;
-                select.appendChild(option);
-            });
-    } catch (err) {
-        console.error('Erro ao carregar clientes:', err);
-    }
-}
+        const pessoas = await response.json();
+        console.log('pessoas recebidas:', pessoas);
 
-// Carregar funcionários para popular o combobox de CPF do funcionário
-async function carregarFuncionarios() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/funcionario`);
-        if (!response.ok) {
-            console.warn('Não foi possível carregar funcionarios:', response.statusText);
-            return;
-        }
-        const funcionarios = await response.json();
-            console.log('funcionarios recebidos:', funcionarios);
-            const select = document.getElementById('FuncionarioPessoaCpfPessoa');
-            if (!select) return;
-            select.innerHTML = '<option value="">-- selecione um funcionário --</option>';
-            funcionarios.forEach(f => {
-                // aliases possíveis
-                const cpf = (f.pessoacpfpessoa || f.pessoacpf || f.cpfpessoa || f.pessoaCpfPessoa || f.cpf || f.PessoaCpfPessoa) && String(f.pessoacpfpessoa || f.pessoacpf || f.cpfpessoa || f.pessoaCpfPessoa || f.cpf || f.PessoaCpfPessoa).trim();
-                const name = (f.nomepessoa || f.nome || f.name || f.nomePessoa) && String(f.nomepessoa || f.nome || f.name || f.nomePessoa).trim();
-                if (!cpf) return;
-                const option = document.createElement('option');
-                option.value = cpf;
-                option.textContent = `${cpf}${name ? ' - ' + name : ''}`;
-                select.appendChild(option);
-            });
+        // Popula ambos selects (cliente e funcionário) com a mesma base de pessoas.
+        const selectCliente = document.getElementById('ClientePessoaCpfPessoa');
+        const selectFuncionario = document.getElementById('FuncionarioPessoaCpfPessoa');
+        if (selectCliente) selectCliente.innerHTML = '<option value="">-- selecione um cliente --</option>';
+        if (selectFuncionario) selectFuncionario.innerHTML = '<option value="">-- selecione um funcionário --</option>';
+
+        pessoas.forEach(p => {
+            const cpf = (p.cpfpessoa || p.cpf || p.pessoacpfpessoa || p.pessoaCpfPessoa) && String(p.cpfpessoa || p.cpf || p.pessoacpfpessoa || p.pessoaCpfPessoa).trim();
+            const name = (p.nomepessoa || p.nome || p.name) && String(p.nomepessoa || p.nome || p.name).trim();
+            if (!cpf) return;
+            const option = document.createElement('option');
+            option.value = cpf;
+            option.textContent = `${cpf}${name ? ' - ' + name : ''}`;
+            if (selectCliente) selectCliente.appendChild(option.cloneNode(true));
+            if (selectFuncionario) selectFuncionario.appendChild(option.cloneNode(true));
+        });
     } catch (err) {
-        console.error('Erro ao carregar funcionarios:', err);
+        console.error('Erro ao carregar pessoas para pedido:', err);
     }
 }
 

@@ -5,16 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRUD - Pedido</title>
+    <!-- Header + design-system -->
+    <link rel="stylesheet" href="/common/header.css">
+    <link rel="stylesheet" href="/styles/global.css">
+    <link rel="stylesheet" href="/styles/responsive.css">
     <link rel="stylesheet" href="/pedido/pedido.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <script src="/common/auth-guard.js" defer></script>
-    <header>
-        <h1>CRUD Pedido</h1>
-    </header>
+    <!-- Header injetado por /common/header.js -->
+    <header></header>
 
-    <main>
+    <main class="container section-main">
+        <!-- Form section (padronizada) -->
         <section class="form-section">
             <h2>Cadastro de Pedido</h2>
 
@@ -22,14 +27,14 @@
                 <div class="search-container">
                     <label for="searchId">Buscar por ID do Pedido:</label>
                     <div class="search-input-group">
-                        <input type="text" id="searchId" placeholder="Digite o ID para buscar">
-                        <button type="button" id="btnBuscar">🔍 Buscar</button>
+                        <input class="form-control" type="text" id="searchId" placeholder="Digite o ID para buscar">
+                        <button type="button" id="btnBuscar" class="btn btn-ghost">🔍 Buscar</button>
 
-                        <button type="button" id="btnIncluir" class="btn-primary">Incluir</button>
-                        <button type="button" id="btnAlterar" class="btn-secondary" style="display: none;">Alterar</button>
-                        <button type="button" id="btnExcluir" class="btn-danger" style="display: none;">Excluir</button>
-                        <button type="button" id="btnSalvar" class="btn-save" style="display: none;">Salvar</button>
-                        <button type="button" id="btnCancelar" class="btn-cancel">Cancelar</button>
+                        <button type="button" id="btnIncluir" class="btn btn-primary">Incluir</button>
+                        <button type="button" id="btnAlterar" class="btn btn-secondary" style="display: none;">Alterar</button>
+                        <button type="button" id="btnExcluir" class="btn btn-danger" style="display: none;">Excluir</button>
+                        <button type="button" id="btnSalvar" class="btn btn-primary" style="display: none;">Salvar</button>
+                        <button type="button" id="btnCancelar" class="btn btn-ghost">Cancelar</button>
                     </div>
                 </div>
 
@@ -38,24 +43,24 @@
 
                     <div class="form-group">
                         <label for="idPedido">ID do Pedido:</label>
-                        <input type="text" id="idPedido" name="idPedido" required>
+                        <input class="form-control" type="text" id="idPedido" name="idPedido" required>
                     </div>
 
                     <div class="form-group">
                         <label for="dataDoPedido">Data do Pedido:</label>
-                        <input type="date" id="dataDoPedido" name="dataDoPedido" required>
+                        <input class="form-control" type="date" id="dataDoPedido" name="dataDoPedido" required>
                     </div>
 
                     <div class="form-group">
                         <label for="ClientePessoaCpfPessoa">CPF do Cliente:</label>
-                        <select id="ClientePessoaCpfPessoa" name="ClientePessoaCpfPessoa" required>
+                        <select class="form-control" id="ClientePessoaCpfPessoa" name="ClientePessoaCpfPessoa" required>
                             <option value="">-- selecione um cliente --</option>
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label for="FuncionarioPessoaCpfPessoa">CPF do Funcionário:</label>
-                        <select id="FuncionarioPessoaCpfPessoa" name="FuncionarioPessoaCpfPessoa" required>
+                        <select class="form-control" id="FuncionarioPessoaCpfPessoa" name="FuncionarioPessoaCpfPessoa" required>
                             <option value="">-- selecione um funcionário --</option>
                         </select>
                     </div>
@@ -64,7 +69,7 @@
         </section>
 
         <section class="list-section">
-            <div class="table-container">
+            <div class="table-container table-list">
                 <table id="pedidosTable">
                     <thead>
                         <tr>
@@ -82,7 +87,7 @@
         </section>
     </main>
 
-    <footer>
+    <footer class="footer-main">
         <p>&copy; 2025 CRUD Pedido</p>
     </footer>
 

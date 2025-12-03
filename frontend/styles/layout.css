@@ -1,0 +1,124 @@
+/* Layout e estrutura */
+
+/* Header */
+header {
+    background: linear-gradient(135deg, var(--verde-escuro), var(--cor-terciaria));
+    color: white;
+    text-align: center;
+    padding: var(--espacamento-lg) 0;
+    box-shadow: var(--sombra-sm);
+}
+
+header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Menu de navegação */
+.nav {
+    background: linear-gradient(90deg, var(--cor-secundaria), green);
+    padding: var(--espacamento-xs) 0;
+}
+
+.nav__menu {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: var(--espacamento-lg);
+}
+
+.nav__menu-item {
+    position: relative;
+}
+
+.nav__menu-item a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    padding: var(--espacamento-xs) var(--espacamento-sm);
+    display: block;
+}
+
+/* Submenu */
+.nav__submenu {
+    list-style: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--bg-principal);
+    border: 1px solid var(--borda-clara);
+    display: none;
+    min-width: 180px;
+    text-align: left;
+}
+
+.nav__submenu-item a {
+    color: var(--verde-escuro);
+    padding: var(--espacamento-xs) var(--espacamento-sm);
+    display: block;
+}
+
+.nav__submenu-item a:hover {
+    background: var(--cor-secundaria);
+}
+
+.nav__menu-item:hover .nav__submenu {
+    display: block;
+}
+
+/* Main container */
+main {
+    max-width: 1200px;
+    margin: var(--espacamento-lg) auto;
+    padding: 0 var(--espacamento-lg);
+    display: grid;
+    gap: var(--espacamento-lg);
+}
+
+/* Sections */
+section {
+    background: var(--bg-principal);
+    border-radius: var(--borda-raio-xl);
+    padding: var(--espacamento-lg);
+    box-shadow: var(--sombra-md);
+    border: 1px solid var(--borda-clara);
+}
+
+section h2 {
+    color: var(--verde-escuro);
+    margin-bottom: var(--espacamento-md);
+    font-size: 1.8rem;
+    border-bottom: 3px solid var(--cor-secundaria);
+    padding-bottom: var(--espacamento-xs);
+}
+
+/* Footer */
+footer {
+    background: var(--verde-escuro);
+    color: white;
+    text-align: center;
+    padding: var(--espacamento-md);
+    margin-top: var(--espacamento-sm);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    main {
+        padding: 0 var(--espacamento-sm);
+    }
+
+    header h1 {
+        font-size: 2rem;
+    }
+
+    section {
+        padding: var(--espacamento-sm);
+    }
+}
+
+@media (max-width: 480px) {
+    section {
+        padding: var(--espacamento-sm);
+    }
+}

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - AVAP</title>
+    <link rel="stylesheet" href="../common/header.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+</head>
+<body>
+    <div id="header-container"></div>
+    
+    <div class="dashboard-container">
+        <!-- Resumo KPI -->
+        <section class="kpi-section">
+            <h2>Resumo Geral</h2>
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Total de Pedidos</div>
+                    <div class="kpi-value" id="kpi-total-pedidos">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Clientes Únicos</div>
+                    <div class="kpi-value" id="kpi-clientes">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Faturamento Total</div>
+                    <div class="kpi-value kpi-currency" id="kpi-faturamento">R$ 0,00</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Ticket Médio</div>
+                    <div class="kpi-value kpi-currency" id="kpi-ticket-medio">R$ 0,00</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Vendas Hoje</div>
+                    <div class="kpi-value kpi-currency" id="kpi-vendas-hoje">R$ 0,00</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Vendas este Mês</div>
+                    <div class="kpi-value kpi-currency" id="kpi-vendas-mes">R$ 0,00</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Pedidos Hoje</div>
+                    <div class="kpi-value" id="kpi-pedidos-hoje">0</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gráficos -->
+        <section class="charts-section">
+            <div class="chart-container">
+                <h3>Vendas - Últimos 7 Dias</h3>
+                <canvas id="chart-ultimos-7"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Vendas por Forma de Pagamento</h3>
+                <canvas id="chart-formas-pagamento"></canvas>
+            </div>
+        </section>
+
+        <!-- Tabelas -->
+        <section class="tables-section">
+            <div class="table-container">
+                <h3>Top 10 Produtos Mais Vendidos</h3>
+                <table id="table-produtos-populares">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Quantidade Vendida</th>
+                            <th>Faturamento</th>
+                            <th>Preço Médio</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-produtos-populares">
+                        <tr><td colspan="4" class="loading">Carregando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-container">
+                <h3>Vendas por Dia (Últimos 30 Dias)</h3>
+                <table id="table-vendas-por-dia">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Número de Pedidos</th>
+                            <th>Total de Vendas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-vendas-por-dia">
+                        <tr><td colspan="3" class="loading">Carregando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-container">
+                <h3>Faturamento por Produto</h3>
+                <table id="table-faturamento">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Total Faturado</th>
+                            <th>Total de Unidades</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-faturamento">
+                        <tr><td colspan="3" class="loading">Carregando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script src="../common/auth-guard.js"></script>
+    <script src="../common/header.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>

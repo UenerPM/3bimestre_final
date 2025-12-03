@@ -1,2 +1,15 @@
-/* CSS para a tabela formaPagamento */
-/* ...adicione aqui os estilos para formaPagamento */
+/* Wrapper para formaPagamento.css — importa o design-system global.
+   O conteúdo original foi movido para: /frontend/styles/_archive/formaPagamento.css.original 
+*/
+@import url('/styles/global.css');
+
+/* Overrides específicos para forma de pagamento */
+.forma-pagamento {
+    border-bottom: 1px solid var(--border-color);
+    padding: var(--spacing-2);
+}
+
+.forma-valor {
+    text-align: right;
+    font-family: var(--font-mono);
+}

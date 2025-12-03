@@ -1,4 +1,4 @@
-const API = '';
+const API = 'http://localhost:3001';
 
 // Elementos estáticos
 const form = document.getElementById('formaForm');
@@ -12,6 +12,16 @@ const btnCancelar = document.getElementById('btnCancelar');
 const nomeInput = document.getElementById('nomeformapagamento');
 const formasTableBody = document.getElementById('formasTableBody');
 const messageContainer = document.getElementById('messageContainer');
+
+// escapeHtml: protege contra injeção de HTML (mesmo padrão usado em outros CRUDs)
+function escapeHtml(unsafe) {
+	return String(unsafe)
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/\"/g, "&quot;")
+		.replace(/'/g, "&#039;");
+}
 
 let operacao = null;
 let currentId = null;
@@ -71,9 +81,14 @@ function renderizarTabela(list) {
 	formasTableBody.innerHTML = '';
 	list.forEach(f => {
 		const tr = document.createElement('tr');
-		tr.innerHTML = `<td><button class="btn-id" onclick="selecionarForma(${f.idformadepagamento})">${f.idformadepagamento}</button></td><td>${f.nomeformapagamento}</td>`;
-		const tdActions = document.createElement('td');
-		tdActions.innerHTML = `<button data-id="${f.idformadepagamento}" class="editar">Editar</button> <button data-id="${f.idformadepagamento}" class="excluir">Excluir</button>`;
+		const fid = f.idFormaPagamento ?? f.idformadepagamento ?? f.idformapagamento ?? f.id;
+		const fname = f.nomeFormaPagamento ?? f.nomeformapagamento ?? f.nomeformapagamento ?? f.nome;
+		// proteger valores para evitar XSS e garantir que o onclick receba string
+		const safeId = String(fid ?? '');
+		const safeName = String(fname ?? '');
+		tr.innerHTML = `<td><button class="btn-id" onclick="selecionarForma('${safeId}')">${escapeHtml(safeId)}</button></td><td>${escapeHtml(safeName)}</td>`;
+			const tdActions = document.createElement('td');
+			tdActions.innerHTML = `<button data-id="${fid}" class="editar">Editar</button> <button data-id="${fid}" class="excluir">Excluir</button>`;
 		tr.appendChild(tdActions);
 		formasTableBody.appendChild(tr);
 	});
@@ -107,8 +122,8 @@ function renderizarTabela(list) {
 	};
 
 function preencherFormulario(f) {
-	nomeInput.value = f.nomeformapagamento || '';
-	currentId = f.idformadepagamento;
+	nomeInput.value = f.nomeFormaPagamento ?? f.nomeformapagamento ?? '';
+	currentId = f.idFormaPagamento ?? f.idformadepagamento ?? f.idformapagamento ?? f.id;
 }
 
 function incluirForma() { 
@@ -128,14 +143,15 @@ function alterarForma() {
 function excluirForma() { if (!confirm('Deseja excluir esta forma?')) return; operacao = 'excluir'; salvarOperacao(); }
 
 async function salvarOperacao() {
+	// o backend espera o campo `nomeformapagamento` (snake_case)
 	const payload = { nomeformapagamento: nomeInput.value };
 	try {
 		// prevenir cliques múltiplos
 		btnSalvar.disabled = true;
 		btnCancelar.disabled = true;
 		let res;
-		if (operacao === 'incluir') res = await fetch(API + '/formaPagamento', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-		else if (operacao === 'alterar') res = await fetch(API + '/formaPagamento/' + currentId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+	if (operacao === 'incluir') res = await fetch(API + '/formaPagamento', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+	else if (operacao === 'alterar') res = await fetch(API + '/formaPagamento/' + currentId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
 		else if (operacao === 'excluir') res = await fetch(API + '/formaPagamento/' + currentId, { method: 'DELETE' });
 
 		if (res && (res.ok || res.status === 204)) { mostrarMensagem('Operação realizada', 'success'); limparFormulario(); carregarFormas(); }

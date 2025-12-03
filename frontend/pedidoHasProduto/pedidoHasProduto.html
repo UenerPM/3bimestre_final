@@ -6,31 +6,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRUD - Pedido Has Produto</title>
+    <link rel="stylesheet" href="/common/header.css">
+    <link rel="stylesheet" href="/styles/global.css">
+    <link rel="stylesheet" href="/styles/responsive.css">
     <link rel="stylesheet" href="/pedidoHasProduto/pedidoHasProduto.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <script src="/common/auth-guard.js" defer></script>
-    <header>
-        <h1>CRUD Pedido Has Produto</h1>
-    </header>
+    <!-- Header injetado por /common/header.js -->
+    <header></header>
 
-    <main>
+    <main class="container section-main">
         <section class="form-section">
-            <h2>Cadastro de Pedido Has Produto</h2>
+            <h2>Cadastro de Itens do Pedido</h2>
 
             <form id="pedidoHasProdutoForm">
                 <div class="search-container">
-                    <label for="searchId">Buscar por ID:</label>
+                    <label for="searchId">Buscar por ID do Item:</label>
                     <div class="search-input-group">
-                        <input type="text" id="searchId" placeholder="Digite o ID para buscar">
-                        <button type="button" id="btnBuscar">🔍 Buscar</button>
+                        <input class="form-control" type="text" id="searchId" placeholder="Digite o ID para buscar">
+                        <button type="button" id="btnBuscar" class="btn btn-ghost">🔍 Buscar</button>
 
-                        <button type="button" id="btnIncluir" class="btn-primary">Incluir</button>
-                        <button type="button" id="btnAlterar" class="btn-secondary" style="display: none;">Alterar</button>
-                        <button type="button" id="btnExcluir" class="btn-danger" style="display: none;">Excluir</button>
-                        <button type="button" id="btnSalvar" class="btn-save" style="display: none;">Salvar</button>
-                        <button type="button" id="btnCancelar" class="btn-cancel">Cancelar</button>
+                        <button type="button" id="btnIncluir" class="btn btn-primary">Incluir</button>
+                        <button type="button" id="btnAlterar" class="btn btn-secondary" style="display: none;">Alterar</button>
+                        <button type="button" id="btnExcluir" class="btn btn-danger" style="display: none;">Excluir</button>
+                        <button type="button" id="btnSalvar" class="btn btn-primary" style="display: none;">Salvar</button>
+                        <button type="button" id="btnCancelar" class="btn btn-ghost">Cancelar</button>
                     </div>
                 </div>
 
@@ -39,26 +42,26 @@
 
                     <div class="form-group">
                         <label for="idPedido">Pedido (pesquise pelo ID):</label>
-                        <input type="text" id="pedidoSearch" placeholder="Digite para filtrar pedidos..." autocomplete="off">
+                        <input class="form-control" type="text" id="pedidoSearch" placeholder="Digite para filtrar pedidos..." autocomplete="off">
                         <div id="pedidoDropdown" class="combo-dropdown"></div>
                         <input type="hidden" id="idPedido" name="idPedido" required>
                     </div>
 
                     <div class="form-group">
                         <label for="idProduto">Produto (pesquise pelo nome ou ID):</label>
-                        <input type="text" id="produtoSearch" placeholder="Digite para filtrar produtos..." autocomplete="off">
+                        <input class="form-control" type="text" id="produtoSearch" placeholder="Digite para filtrar produtos..." autocomplete="off">
                         <div id="produtoDropdown" class="combo-dropdown"></div>
                         <input type="hidden" id="idProduto" name="idProduto">
                     </div>
 
                     <div class="form-group">
                         <label for="quantidade">Quantidade:</label>
-                        <input type="number" id="quantidade" name="quantidade" min="1" value="1">
+                        <input class="form-control" type="number" id="quantidade" name="quantidade" min="1" value="1">
                     </div>
 
                     <div class="form-group">
                         <label>&nbsp;</label>
-                        <button type="button" id="btnAddItem" class="btn-primary">Adicionar item à lista</button>
+                        <button type="button" id="btnAddItem" class="btn btn-success">Adicionar item à lista</button>
                     </div>
 
                     <div class="form-group">
@@ -75,8 +78,8 @@
         </section>
 
         <section class="list-section">
-            <div class="table-container">
-                <table id="pedidoHasProdutoTable">
+            <div class="table-container table-list">
+                <table id="pedidoHasProdutoTable" class="table">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -94,11 +97,9 @@
                 </table>
             </div>
         </section>
-
-        <!-- Seleção por comboboxs implementada; tabelas de seleção removidas conforme solicitado -->
     </main>
 
-    <footer>
+    <footer class="footer-main">
         <p>&copy; 2025 CRUD Pedido Has Produto</p>
     </footer>
 

@@ -1,2 +1,5 @@
-/* CSS para a tabela pagamentoHasFormaPagamento */
-/* ...adicione aqui os estilos para pagamentoHasFormaPagamento */
+/* Wrapper para pagamentoHasFormaPagamento.css — importa o design-system global */
+@import url('/styles/global.css');
+
+/* Overrides específicos */
+.pagamento-forma-overrides { padding: 0; }

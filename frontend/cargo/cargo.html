@@ -5,16 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRUD - Cargo</title>
+    <link rel="stylesheet" href="/common/header.css">
+    <link rel="stylesheet" href="/styles/global.css">
     <link rel="stylesheet" href="/cargo/cargo.css">
 </head>
 
 <body>
     <script src="/common/auth-guard.js" defer></script>
-    <header>
-        <h1>CRUD Cargo</h1>
-    </header>
+    <!-- Header injetado por /common/header.js -->
+    <header></header>
 
-    <main>
+    <main class="container section-main">
         <section class="form-section">
             <h2>Cadastro de Cargo</h2>
 
@@ -22,14 +23,14 @@
                 <div class="search-container">
                     <label for="searchId">Buscar por ID:</label>
                     <div class="search-input-group">
-                        <input type="number" id="searchId" placeholder="Digite o ID para buscar">
-                        <button type="button" id="btnBuscar">🔍 Buscar</button>
+                        <input class="form-control" type="number" id="searchId" placeholder="Digite o ID para buscar">
+                        <button type="button" id="btnBuscar" class="btn btn-ghost">🔍 Buscar</button>
 
-                        <button type="button" id="btnIncluir" class="btn-primary">Incluir</button>
-                        <button type="button" id="btnAlterar" class="btn-secondary" style="display: none;">Alterar</button>
-                        <button type="button" id="btnExcluir" class="btn-danger" style="display: none;">Excluir</button>
-                        <button type="button" id="btnSalvar" class="btn-save" style="display: none;">Salvar</button>
-                        <button type="button" id="btnCancelar" class="btn-cancel">Cancelar</button>
+                        <button type="button" id="btnIncluir" class="btn btn-primary">Incluir</button>
+                        <button type="button" id="btnAlterar" class="btn btn-secondary" style="display: none;">Alterar</button>
+                        <button type="button" id="btnExcluir" class="btn btn-danger" style="display: none;">Excluir</button>
+                        <button type="button" id="btnSalvar" class="btn btn-primary" style="display: none;">Salvar</button>
+                        <button type="button" id="btnCancelar" class="btn btn-ghost">Cancelar</button>
                     </div>
                 </div>
 
@@ -38,15 +39,15 @@
 
                     <div class="form-group">
                         <label for="nomecargo">Nome:</label>
-                        <input type="text" id="nomecargo" name="nomecargo" required>
+                        <input class="form-control" type="text" id="nomecargo" name="nomecargo" required>
                     </div>      
                 </fieldset>
             </form>
         </section>
 
         <section class="list-section">
-            <div class="table-container">
-                <table id="cargosTable">
+            <div class="table-container table-list">
+                <table id="cargosTable" class="table">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -59,9 +60,10 @@
                 </table>
             </div>
         </section>
+
     </main>
 
-    <footer>
+    <footer class="footer-main">
         <p>&copy; 2025 CRUD Cargo</p>
     </footer>
 

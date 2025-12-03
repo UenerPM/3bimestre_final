@@ -1,9 +1,13 @@
-/* Reset e configurações básicas */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* Wrapper para produto.css — agora importa o design-system global e expõe overrides locais
+ * O conteúdo original foi movido para: /frontend/styles/_archive/produto.css.original */
+@import url('/styles/global.css');
+
+/* Overrides específicos do produto (a serem usados apenas quando necessário) */
+/* Nota: Mantenha este arquivo pequeno. Use apenas para ajustes que não podem ser feitos via classes globais. */
+
+/* Exemplo de override:
+.produto-header { border-color: var(--color-primary-500); }
+*/
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

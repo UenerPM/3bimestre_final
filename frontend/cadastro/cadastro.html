@@ -1,15 +1,16 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-br">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Cadastro de Pessoa</title>
-  <link rel="stylesheet" href="./cadastro.css" />
   <link rel="stylesheet" href="/common/header.css" />
+  <link rel="stylesheet" href="/styles/global.css">
+  <link rel="stylesheet" href="/cadastro/cadastro.css" />
 </head>
 <body>
   <script src="/common/header.js" defer></script>
-  <main class="container">
+  <main class="container section-main">
     <h1>Cadastro de Pessoa</h1>
 
     <form id="cadastroForm" novalidate>
@@ -29,10 +30,10 @@
       </div>
 
       <fieldset>
-        <legend>Endereço</legend>
+        <legend>EndereÃ§o</legend>
 
         <div class="row">
-          <label for="numero">Número</label>
+          <label for="numero">NÃºmero</label>
           <input id="numero" name="numero" type="text" />
         </div>
 
@@ -54,8 +55,8 @@
       </div>
 
       <div class="button-row">
-        <button type="submit" class="btn-primary">Salvar</button>
-        <button type="button" id="btnCancelar" class="btn-cancel">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        <button type="button" id="btnCancelar" class="btn btn-ghost">Cancelar</button>
       </div>
 
       <div id="msg" role="status" aria-live="polite" class="msg"></div>

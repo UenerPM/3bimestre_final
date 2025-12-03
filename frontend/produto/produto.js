@@ -14,11 +14,90 @@ const btnCancelar = document.getElementById('btnCancelar');
 const btnSalvar = document.getElementById('btnSalvar');
 const produtosTableBody = document.getElementById('produtosTableBody');
 const messageContainer = document.getElementById('messageContainer');
+const imagemSelect = document.getElementById('imagemSelect');
+const imagemPath = document.getElementById('imagemPath');
+const imagemFile = document.getElementById('imagemFile');
+const imagePreview = document.getElementById('imagePreview');
 
-// Carregar lista de produtos ao inicializar
+// Carregar lista de produtos e imagens ao inicializar
 document.addEventListener('DOMContentLoaded', () => {
     carregarProdutos();
+    carregarImagens();
 });
+
+// Função auxiliar para escapar HTML (evitar XSS)
+function escapeHtml(unsafe) {
+    return String(unsafe)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+// Default image (inline SVG) used when product has no image
+const DEFAULT_IMAGE = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'
+);
+
+function getImagemCaminho(produto) {
+    return produto.imagem_caminho ?? produto.imagemCaminho ?? produto.imagem ?? null;
+}
+
+// Carregar lista de imagens no select
+async function carregarImagens() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/imagem`);
+        if (response.ok) {
+            const imagens = await response.json();
+            imagemSelect.innerHTML = '<option value="">Selecione uma imagem</option>';
+            imagens.forEach(img => {
+                imagemSelect.innerHTML += `<option value="${escapeHtml(img.caminho)}">${escapeHtml(img.caminho)}</option>`;
+            });
+        }
+    } catch (error) {
+        console.error('Erro ao carregar imagens:', error);
+        mostrarMensagem('Erro ao carregar lista de imagens', 'error');
+    }
+}
+
+// Atualizar preview quando mudar select ou input
+imagemSelect.addEventListener('change', (e) => atualizarPreview(e));
+imagemPath.addEventListener('input', (e) => atualizarPreview(e));
+imagemFile?.addEventListener('change', (e) => atualizarPreview(e));
+
+function atualizarPreview(e) {
+    // prioridade: arquivo selecionado > caminho digitado > select
+    const file = imagemFile?.files && imagemFile.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+            imagePreview.src = ev.target.result;
+            imagePreview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+        // limpar select/path to avoid confusion
+        imagemSelect.value = '';
+        imagemPath.value = '';
+        return;
+    }
+
+    const caminho = imagemPath.value || imagemSelect.value;
+    if (caminho && (caminho.match(/\.(jpg|jpeg|png|gif|webp)$/i) || caminho.startsWith('http') )) {
+        // exibir via URL relativo ou absoluto
+        imagePreview.src = caminho.startsWith('http') ? caminho : '/' + caminho;
+        imagePreview.style.display = 'block';
+        if (e?.target === imagemSelect && imagemSelect.value) {
+            imagemPath.value = imagemSelect.value;
+        }
+        if (e?.target === imagemPath) {
+            imagemSelect.value = '';
+        }
+    } else {
+        imagePreview.style.display = 'none';
+        imagePreview.src = '';
+    }
+}
 
 // Event Listeners
 btnBuscar.addEventListener('click', buscarProduto);
@@ -79,8 +158,10 @@ async function buscarProduto() {
     try {
         const response = await fetch(`${API_BASE_URL}/produto/${id}`);
         if (response.ok) {
-            const produto = await response.json();
-            preencherFormulario(produto);
+                const produto = await response.json();
+                // aceitar tanto camelCase quanto snake_case (compatibilidade)
+                const p = produto && (produto.idProduto || produto.idproduto) ? produto : produto;
+                preencherFormulario(p);
             mostrarBotoes(true, false, true, true, false, false);
             mostrarMensagem('Produto encontrado!', 'success');
         } else if (response.status === 404) {
@@ -98,11 +179,25 @@ async function buscarProduto() {
 
 // Função para preencher formulário com dados da produto
 async function preencherFormulario(produto) {
-    currentProductId = produto.idproduto;
-    searchId.value = produto.idproduto;
-    document.getElementById('noemproduto').value = produto.nomeproduto || '';
-    document.getElementById('quantidadeemestoque').value = produto.quantidadeemestoque || '';
-    document.getElementById('precounitario').value = produto.precounitario || '';
+    currentProductId = produto.idProduto ?? produto.idproduto;
+    searchId.value = produto.idProduto ?? produto.idproduto;
+    document.getElementById('noemproduto').value = produto.nomeProduto ?? produto.nomeproduto ?? '';
+    document.getElementById('quantidadeemestoque').value = produto.quantidadeEmEstoque ?? produto.quantidadeemestoque ?? '';
+    document.getElementById('precounitario').value = produto.precoUnitario ?? produto.precounitario ?? '';
+    
+    // Preencher campo de imagem e mostrar preview (arquivo input permanece vazio por segurança)
+    const caminho = getImagemCaminho(produto);
+    if (caminho) {
+        imagemPath.value = caminho;
+        imagemSelect.value = caminho;
+        imagePreview.src = caminho.startsWith('http') ? caminho : '/' + caminho;
+        imagePreview.style.display = 'block';
+    } else {
+        imagemPath.value = '';
+        imagemSelect.value = '';
+        imagePreview.src = DEFAULT_IMAGE;
+        imagePreview.style.display = 'block';
+    }
 }
 
 
@@ -142,11 +237,22 @@ async function excluirProduto() {
 }
 
 async function salvarOperacao() {
+    // Validar caminho da imagem se fornecido
+    const imagemCaminho = imagemPath.value.trim();
+    if (imagemCaminho && !imagemCaminho.match(/^img\/produtos\/[^\/]+\.(jpg|jpeg|png|gif)$/i)) {
+        mostrarMensagem('Caminho de imagem inválido. Use formato: img/produtos/nome.jpg', 'error');
+        return;
+    }
+    // verificar se há arquivo selecionado
+    const arquivo = imagemFile?.files && imagemFile.files[0];
+
     const produto = {
-        idproduto: searchId.value,
+        idproduto: searchId.value || null,
         nomeproduto: form.noemproduto.value,
         quantidadeemestoque: form.quantidadeemestoque.value,
         precounitario: form.precounitario.value,
+        // se houver arquivo, deixamos imagem_caminho nulo e faremos upload depois
+        imagem_caminho: arquivo ? null : (imagemCaminho || null)
     };
     console.log('Dados enviados para o backend:', produto); // Log para depuração
     let response = null;
@@ -159,6 +265,18 @@ async function salvarOperacao() {
                 },
                 body: JSON.stringify(produto)
             });
+
+            if (response.ok && arquivo) {
+                const created = await response.json();
+                const prodId = created.idproduto ?? created.idProduto ?? created.id;
+                // upload do arquivo associado ao produto
+                try {
+                    await uploadFileForProduct(prodId, arquivo);
+                } catch (err) {
+                    console.error('Erro ao fazer upload da imagem:', err);
+                    mostrarMensagem('Produto criado mas falha ao enviar imagem', 'warning');
+                }
+            }
         } else if (operacao === 'alterar') {
             response = await fetch(`${API_BASE_URL}/produto/${currentProductId}`, {
                 method: 'PUT',
@@ -167,6 +285,16 @@ async function salvarOperacao() {
                 },
                 body: JSON.stringify(produto)
             });
+
+            if (response.ok && arquivo) {
+                const prodId = currentProductId;
+                try {
+                    await uploadFileForProduct(prodId, arquivo);
+                } catch (err) {
+                    console.error('Erro ao fazer upload da imagem:', err);
+                    mostrarMensagem('Produto atualizado mas falha ao enviar imagem', 'warning');
+                }
+            }
         } else if (operacao === 'excluir') {
             response = await fetch(`${API_BASE_URL}/produto/${currentProductId}`, {
                 method: 'DELETE'
@@ -228,15 +356,20 @@ function renderizarTabelaProdutos(produtos) {
 
     produtos.forEach(produto => {
         const row = document.createElement('tr');
+        const caminho = getImagemCaminho(produto);
+        const thumbSrc = caminho ? (caminho.startsWith('http') ? caminho : ('/' + caminho)) : DEFAULT_IMAGE;
         row.innerHTML = `
                     <td>
-                        <button class="btn-id" onclick="selecionarProduto(${produto.idproduto})">
-                            ${produto.idproduto}
+                        <button class="btn-id" onclick="selecionarProduto(${produto.idProduto ?? produto.idproduto})">
+                            ${produto.idProduto ?? produto.idproduto}
                         </button>
                     </td>
-                    <td>${produto.nomeproduto}</td>
-                    <td> ${formatarData(produto.quantidadeemestoque)}</td>
-                    <td>${produto.precounitario}</td>
+                    <td class="product-thumb-cell">
+                        <img class="product-thumb" src="${escapeHtml(thumbSrc)}" alt="thumb">
+                    </td>
+                    <td>${escapeHtml(produto.nomeProduto ?? produto.nomeproduto)}</td>
+                    <td>${produto.quantidadeEmEstoque ?? produto.quantidadeemestoque}</td>
+                    <td>R$ ${Number(produto.precoUnitario ?? produto.precounitario).toFixed(2)}</td>
                 `;
         produtosTableBody.appendChild(row);
     });
@@ -246,4 +379,26 @@ function renderizarTabelaProdutos(produtos) {
 async function selecionarProduto(id) {
     searchId.value = id;
     await buscarProduto();
+}
+
+// Faz upload do arquivo para o produto
+async function uploadFileForProduct(produtoId, file) {
+    const fd = new FormData();
+    fd.append('imagem', file);
+    console.log('Enviando arquivo para /imagem/upload/', produtoId, file.name, file.type, file.size);
+    const res = await fetch(`${API_BASE_URL}/imagem/upload/${produtoId}`, {
+        method: 'POST',
+        body: fd
+    });
+    const text = await res.text().catch(()=>null);
+    console.log('Resposta upload status:', res.status, 'body:', text);
+    if (!res.ok) {
+        // tentar parsear JSON
+        let parsed = null;
+        try { parsed = JSON.parse(text); } catch(e) { /* ignore */ }
+        throw new Error((parsed && parsed.error) ? parsed.error : text || 'Falha no upload');
+    }
+    // após upload, recarregar listas
+    await carregarImagens();
+    await carregarProdutos();
 }

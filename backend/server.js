@@ -100,6 +100,23 @@ const clienteRoutes = require('./routes/clienteRoutes');
 app.use('/cliente', clienteRoutes);
 const formaPagamentoRoutes = require('./routes/formaPagamentoRoutes');
 app.use('/formaPagamento', formaPagamentoRoutes);
+
+const imagemRoutes = require('./routes/imagemRoutes');
+app.use('/imagem', imagemRoutes);
+// rotas de pagamento
+try {
+  const pagamentoRoutes = require('./routes/pagamentoRoutes');
+  app.use('/pagamento', pagamentoRoutes);
+} catch (e) {
+  console.warn('Pagamento routes não registradas:', e.message || e);
+}
+// rotas de relatórios
+try {
+  const relatoriosRoutes = require('./routes/relatoriosRoutes');
+  app.use('/api/relatorios', relatoriosRoutes);
+} catch (e) {
+  console.warn('Relatórios routes não registradas:', e.message || e);
+}
 // rota administrativa para aplicar migrações (dev only)
 try {
   const adminRoutes = require('./routes/adminRoutes');
@@ -113,12 +130,10 @@ try {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Rota padrão
+// Rota raiz: redireciona para a página de login do frontend
 app.get('/', (req, res) => {
-  res.json({
-    message: 'O server está funcionando - essa é a rota raiz!',
-    database: 'PostgreSQL',
-    timestamp: new Date().toISOString()
-  });
+  // usar redirect para garantir que navegadores caiam na tela de login
+  res.redirect('/login/login.html');
 });
 
 // Adiciona rota específica para servir a página de cadastro
