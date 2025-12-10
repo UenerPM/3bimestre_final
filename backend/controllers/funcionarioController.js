@@ -18,6 +18,7 @@ exports.listarFuncionarios = async (req, res) => {
       f.porcentagemComissao as porcentagemcomissao
       FROM funcionario f
       LEFT JOIN pessoa p ON p.cpfpessoa = f.PessoaCpfPessoa
+      WHERE f.ativo = true
       ORDER BY p.nomepessoa NULLS LAST, f.PessoaCpfPessoa`;
     const result = await query(sql);
     return helper.respondList(res, result.rows);
@@ -48,7 +49,7 @@ exports.criarFuncionario = async (req, res) => {
     if (cargoRes.rows.length === 0) return helper.respondBadRequest(res, 'Cargo informado não existe');
 
     try {
-      await query('INSERT INTO funcionario (PessoaCpfPessoa, salario, CargosIdCargo, porcentagemComissao) VALUES ($1, $2, $3, $4)', [PessoaCpfPessoa, salarioNum, cargoNum, porcentagemNum]);
+      await query('INSERT INTO funcionario (PessoaCpfPessoa, salario, CargosIdCargo, porcentagemComissao, ativo) VALUES ($1, $2, $3, $4, $5)', [PessoaCpfPessoa, salarioNum, cargoNum, porcentagemNum, true]);
       const created = await query(`SELECT f.PessoaCpfPessoa as pessoacpfpessoa, p.nomepessoa as nomepessoa, f.salario, f.CargosIdCargo as idcargo, f.porcentagemComissao as porcentagemcomissao FROM funcionario f LEFT JOIN pessoa p ON p.cpfpessoa = f.PessoaCpfPessoa WHERE f.PessoaCpfPessoa = $1`, [PessoaCpfPessoa]);
       return helper.respondCreated(res, created.rows[0]);
     } catch (error) {
@@ -66,7 +67,7 @@ exports.obterFuncionario = async (req, res) => {
   try {
     const id = req.params.id;
     if (!id) return helper.respondBadRequest(res, 'ID é obrigatório');
-    const sql = `SELECT f.PessoaCpfPessoa as pessoacpfpessoa, p.nomepessoa as nomepessoa, f.salario, f.CargosIdCargo as idcargo, f.porcentagemComissao as porcentagemcomissao FROM funcionario f LEFT JOIN pessoa p ON p.cpfpessoa = f.PessoaCpfPessoa WHERE f.PessoaCpfPessoa = $1`;
+    const sql = `SELECT f.PessoaCpfPessoa as pessoacpfpessoa, p.nomepessoa as nomepessoa, f.salario, f.CargosIdCargo as idcargo, f.porcentagemComissao as porcentagemcomissao FROM funcionario f LEFT JOIN pessoa p ON p.cpfpessoa = f.PessoaCpfPessoa WHERE f.PessoaCpfPessoa = $1 AND f.ativo = true`;
     const result = await query(sql, [id]);
     if (result.rows.length === 0) return helper.respondNotFound(res, 'Funcionario não encontrado');
     return helper.respondJson(res, result.rows[0]);
@@ -88,7 +89,7 @@ exports.atualizarFuncionario = async (req, res) => {
     if (porcentagemNum !== null && Number.isNaN(porcentagemNum)) return helper.respondBadRequest(res, 'Porcentagem de comissão inválida');
     if (cargoNum !== null && !Number.isInteger(cargoNum)) return helper.respondBadRequest(res, 'ID de cargo inválido');
 
-    const existing = await query('SELECT PessoaCpfPessoa, salario, CargosIdCargo, porcentagemComissao FROM funcionario WHERE PessoaCpfPessoa = $1', [id]);
+    const existing = await query('SELECT PessoaCpfPessoa, salario, CargosIdCargo, porcentagemComissao FROM funcionario WHERE PessoaCpfPessoa = $1 AND ativo = true', [id]);
     if (existing.rows.length === 0) return helper.respondNotFound(res, 'Funcionario não encontrado');
     const current = existing.rows[0];
 
@@ -119,8 +120,8 @@ exports.atualizarFuncionario = async (req, res) => {
 exports.deletarFuncionario = async (req, res) => {
   try {
     const id = req.params.id;
-    const result = await query('DELETE FROM funcionario WHERE PessoaCpfPessoa = $1', [id]);
-    if (result.rowCount === 0) return helper.respondNotFound(res, 'Funcionario não encontrado');
+    const result = await query('UPDATE funcionario SET ativo = false WHERE PessoaCpfPessoa = $1 AND ativo = true', [id]);
+    if (result.rowCount === 0) return helper.respondNotFound(res, 'Funcionario não encontrado ou já inativo');
     return helper.respondNoContent(res);
   } catch (error) {
     console.error('Erro ao deletar funcionario:', error);

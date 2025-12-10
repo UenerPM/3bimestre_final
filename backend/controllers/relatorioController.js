@@ -8,7 +8,8 @@ const reportRepository = require('../repositories/reportRepository');
 // GET /api/relatorios/resumo
 async function getResumo(req, res) {
   try {
-    const data = await reportRepository.getResumo();
+    const { startDate, endDate } = req.query;
+    const data = await reportRepository.getResumo({ startDate, endDate });
     res.status(200).json({
       sucesso: true,
       dados: {
@@ -33,7 +34,8 @@ async function getResumo(req, res) {
 // GET /api/relatorios/vendas-por-dia
 async function getVendasPorDia(req, res) {
   try {
-    const data = await reportRepository.getVendasPorDia();
+    const { startDate, endDate } = req.query;
+    const data = await reportRepository.getVendasPorDia({ startDate, endDate });
     const formatado = data.map(row => ({
       data: row.data,
       dataFormatada: row.data_formatada,
@@ -57,7 +59,8 @@ async function getVendasPorDia(req, res) {
 async function getProdutosMaisVendidos(req, res) {
   try {
     const limite = req.query.limite || 10;
-    const data = await reportRepository.getProdutosMaisVendidos(parseInt(limite));
+    const { startDate, endDate } = req.query;
+    const data = await reportRepository.getProdutosMaisVendidos(parseInt(limite), { startDate, endDate });
     const formatado = data.map(row => ({
       idProduto: parseInt(row.idproduto || row.idProduto || 0),
       nomeProduto: row.nomeproduto || row.nomeProduto || '',
@@ -81,7 +84,8 @@ async function getProdutosMaisVendidos(req, res) {
 // GET /api/relatorios/faturamento
 async function getFaturamento(req, res) {
   try {
-    const data = await reportRepository.getFaturamento();
+    const { startDate, endDate } = req.query;
+    const data = await reportRepository.getFaturamento({ startDate, endDate });
     const formatado = data.map(row => ({
       idProduto: parseInt(row.idproduto || row.idProduto || 0),
       nomeProduto: row.nomeproduto || row.nomeProduto || '',
@@ -104,7 +108,8 @@ async function getFaturamento(req, res) {
 // GET /api/relatorios/formas-pagamento
 async function getVendasPorFormaPagamento(req, res) {
   try {
-    const data = await reportRepository.getVendasPorFormaPagamento();
+    const { startDate, endDate } = req.query;
+    const data = await reportRepository.getVendasPorFormaPagamento({ startDate, endDate });
     const formatado = data.map(row => ({
       idFormaPagamento: parseInt(row.idformapagamento || row.idFormaPagamento || 0),
       nomeFormaPagamento: row.nomeformapagamento || row.nomeFormaPagamento || '',
@@ -128,7 +133,8 @@ async function getVendasPorFormaPagamento(req, res) {
 // GET /api/relatorios/ultimos-7-dias
 async function getUltimos7Dias(req, res) {
   try {
-    const data = await reportRepository.getUltimos7Dias();
+    const { startDate, endDate } = req.query;
+    const data = await reportRepository.getUltimos7Dias({ startDate, endDate });
     const formatado = data.map(row => ({
       data: row.data,
       dataLabel: row.data_label,

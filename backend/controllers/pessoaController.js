@@ -180,6 +180,11 @@ exports.atualizarPessoa = async (req, res) => {
       return helper.respondBadRequest(res, err.message);
     }
 
+    // Erro de dependências ao tentar remover papel de funcionário
+    if (err.code === 'DEPENDENT_RECORDS' || (err.message && err.message.includes('pedidos vinculados'))) {
+      return helper.respondBadRequest(res, err.message);
+    }
+
     if (err.code === '23505' && err.constraint && err.constraint.includes('email')) {
       return helper.respondBadRequest(res, 'Email já está em uso');
     }

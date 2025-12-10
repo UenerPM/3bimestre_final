@@ -6,6 +6,13 @@
 
 const API_BASE_URL = 'http://localhost:3001/api/relatorios';
 
+// Parâmetros atuais do relatório (podem ser alterados via UI)
+const reportParams = {
+  startDate: null,
+  endDate: null,
+  limite: 10
+};
+
 // Instâncias dos gráficos
 let chartUltimos7 = null;
 let chartFormasPagamento = null;
@@ -25,9 +32,20 @@ function formatarMoeda(valor) {
 /**
  * Faz requisição à API
  */
-async function fetchAPI(endpoint) {
+function buildQueryString(params) {
+  const esc = encodeURIComponent;
+  const parts = [];
+  if (params.startDate) parts.push(`startDate=${esc(params.startDate)}`);
+  if (params.endDate) parts.push(`endDate=${esc(params.endDate)}`);
+  if (params.limite) parts.push(`limite=${esc(params.limite)}`);
+  return parts.length ? `?${parts.join('&')}` : '';
+}
+
+async function fetchAPI(endpoint, extraParams = {}) {
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`);
+    const params = { ...reportParams, ...extraParams };
+    const qs = buildQueryString(params);
+    const response = await fetch(`${API_BASE_URL}${endpoint}${qs}`);
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
     }
@@ -78,6 +96,7 @@ async function carregarResumo() {
 async function carregarUltimos7Dias() {
   try {
     console.log('Carregando últimos 7 dias...');
+    // permite passar quantidade de dias via reportParams (se startDate/endDate não definido usa default do backend)
     const dados = await fetchAPI('/ultimos-7-dias');
     
     if (!dados || dados.length === 0) {
@@ -217,7 +236,7 @@ async function carregarFormasPagamento() {
 async function carregarProdutosPopulares() {
   try {
     console.log('Carregando produtos populares...');
-    const dados = await fetchAPI('/produtos-populares?limite=10');
+    const dados = await fetchAPI('/produtos-populares');
     
     const tbody = document.getElementById('tbody-produtos-populares');
     tbody.innerHTML = '';
@@ -361,6 +380,31 @@ async function carregarTodosDados() {
 document.addEventListener('DOMContentLoaded', () => {
   console.log('Dashboard inicializado');
   carregarTodosDados();
+
+  // Inicializa controles de parâmetros
+  const form = document.getElementById('report-params-form');
+  const inputStart = document.getElementById('param-start');
+  const inputEnd = document.getElementById('param-end');
+  const inputLimit = document.getElementById('param-limit');
+  const btnReset = document.getElementById('btn-reset-params');
+
+  form.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    reportParams.startDate = inputStart.value || null;
+    reportParams.endDate = inputEnd.value || null;
+    reportParams.limite = inputLimit.value ? Number(inputLimit.value) : 10;
+    carregarTodosDados();
+  });
+
+  btnReset.addEventListener('click', () => {
+    inputStart.value = '';
+    inputEnd.value = '';
+    inputLimit.value = 10;
+    reportParams.startDate = null;
+    reportParams.endDate = null;
+    reportParams.limite = 10;
+    carregarTodosDados();
+  });
 
   // Recarrega os dados a cada 5 minutos (opcional)
   setInterval(carregarTodosDados, 5 * 60 * 1000);

@@ -1,8 +1,29 @@
-/* Wrapper para pessoa.css — agora importa o design-system global e expõe overrides locais
- * O conteúdo original foi movido para: /frontend/styles/_archive/pessoa.css.original */
 @import url('/styles/global.css');
 
 /* Overrides específicos da pessoa */
+
+/* Layout main */
+main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+section.card {
+    background: white;
+    border-radius: var(--border-radius-lg);
+    padding: 2rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--color-border);
+}
+
+section.card h2 {
+    color: var(--color-primary);
+    margin-bottom: 1.5rem;
+}
 
 /* Tabela moderna e responsiva */
 .table-modern {
@@ -246,12 +267,24 @@
     background: white;
     border-radius: var(--border-radius-lg);
     box-shadow: var(--shadow-md);
-    overflow: hidden;
+    overflow-y: auto;
+    max-height: 400px;
 }
 
 .table-list {
     width: 100%;
     overflow-x: auto;
+}
+.table-list table {
+    min-width: 1200px;
+    width: 100%;
+}
+
+.table-list th,
+.table-list td {
+    white-space: nowrap;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.875rem;
 }
 
 /* Responsividade */

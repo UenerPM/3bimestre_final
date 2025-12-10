@@ -277,11 +277,14 @@ async function buscarItensDoPedido() {
         if (res.status === 404) {
             mostrarMensagem('Pedido não encontrado ou sem itens', 'info');
             pedidoHasProdutoTableBody.innerHTML = '';
+            idPedidoInput.value = pedidoId;
+            setModo('default');
             return;
         }
         if (!res.ok) throw new Error('Erro ao buscar itens do pedido');
         const itens = await res.json();
         renderizarTabelaItens(itens);
+        idPedidoInput.value = pedidoId;
         // após busca feita pelo usuário, permitir inclusão de itens para este pedido
         setModo('itemsLoaded');
     } catch (err) {

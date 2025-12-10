@@ -5,4 +5,8 @@
 
 /* Overrides específicos do módulo Pedido. Use com parcimônia. */
 .search-container { background: var(--color-primary-500, #f0fff0); }
-.table-container { max-height: 420px; }
+.table-container {
+  max-height: 420px;
+  overflow-y: auto;
+  overflow-x: auto;
+}

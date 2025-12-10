@@ -4,8 +4,9 @@ const pedidoController = require('../controllers/pedidoController');
 
 router.get('/abrirCrudPedido', pedidoController.abrirCrudPedido);
 router.get('/', pedidoController.listarPedidos);
+router.get('/:id', pedidoController.obterPedido);
 router.post('/', pedidoController.criarPedido);
-router.put('/:idpedido', pedidoController.atualizarPedido);
-router.delete('/:idpedido', pedidoController.deletarPedido);
+router.put('/:id', pedidoController.atualizarPedido);
+router.delete('/:id', pedidoController.deletarPedido);
 
 module.exports = router;

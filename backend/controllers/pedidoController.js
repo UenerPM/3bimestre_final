@@ -12,6 +12,19 @@ exports.listarPedidos = async (req, res) => {
   }
 };
 
+exports.obterPedido = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) return helper.respondBadRequest(res, 'ID inválido');
+
+    const result = await db.query('SELECT * FROM Pedido WHERE idPedido = $1', [id]);
+    if (result.rows.length === 0) return helper.respondNotFound(res, 'Pedido não encontrado');
+    return helper.respondJson(res, result.rows[0]);
+  } catch (error) {
+    return helper.respondServerError(res, error);
+  }
+};
+
 exports.criarPedido = async (req, res) => {
   try {
     const { dataDoPedido, ClientePessoaCpfPessoa, FuncionarioPessoaCpfPessoa } = req.body;
@@ -37,7 +50,7 @@ exports.criarPedido = async (req, res) => {
 exports.atualizarPedido = async (req, res) => {
   try {
     const id = Number(req.params.id);
-    if (!Number.isInteger(id)) return helper.respondBadRequest(res, 'ID inválido');
+    if (!Number.isInteger(id) || id <= 0) return helper.respondBadRequest(res, 'ID inválido');
 
     const { dataDoPedido, ClientePessoaCpfPessoa, FuncionarioPessoaCpfPessoa } = req.body;
     if (!dataDoPedido) return helper.respondBadRequest(res, 'dataDoPedido é obrigatória');
@@ -58,7 +71,7 @@ exports.atualizarPedido = async (req, res) => {
 exports.deletarPedido = async (req, res) => {
   try {
     const id = Number(req.params.id);
-    if (!Number.isInteger(id)) return helper.respondBadRequest(res, 'ID inválido');
+    if (!Number.isInteger(id) || id <= 0) return helper.respondBadRequest(res, 'ID inválido');
     const result = await db.query('DELETE FROM Pedido WHERE idPedido = $1 RETURNING *', [id]);
     if (result.rows.length === 0) return helper.respondNotFound(res, 'Pedido não encontrado');
     return helper.respondNoContent(res);

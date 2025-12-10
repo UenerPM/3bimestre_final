@@ -30,7 +30,7 @@ async function getWithRoles(cpf) {
       p.cpfpessoa, p.nomepessoa, p.email, p.senha_pessoa, p.data_acesso,
       p.datanascimentopessoa, p.numero, p.cep,
       CASE WHEN c.pessoacpfpessoa IS NOT NULL THEN true ELSE false END as is_cliente,
-      CASE WHEN f.pessoacpfpessoa IS NOT NULL THEN true ELSE false END as is_funcionario,
+      CASE WHEN f.pessoacpfpessoa IS NOT NULL AND f.ativo = true THEN true ELSE false END as is_funcionario,
       -- adiciona campos extras das tabelas relacionadas
       c.rendacliente, c.datadecadastrocliente,
       f.salario, f.cargosidcargo, f.porcentagemcomissao
@@ -88,7 +88,9 @@ async function updateRoles(pessoa, client) {
 
   // Se era funcionário e não deve mais ser
   if (current && current.isFuncionario && !isFuncionario) {
-    await dbClient('DELETE FROM funcionario WHERE pessoacpfpessoa = $1', [pessoa.cpfpessoa]);
+    // Soft-delete: marcar funcionário como inativo para preservar histórico e evitar
+    // violações de FK em pedidos que referenciam o funcionário.
+    await dbClient('UPDATE funcionario SET ativo = false WHERE pessoacpfpessoa = $1', [pessoa.cpfpessoa]);
   }
 
   // Se não era cliente e agora deve ser
@@ -109,8 +111,8 @@ async function updateRoles(pessoa, client) {
     // Campos obrigatórios e opcionais
     const { salario, cargosIdCargo, porcentagemComissao } = pessoa;
     await dbClient(
-      'INSERT INTO funcionario (pessoacpfpessoa, salario, cargosidcargo, porcentagemcomissao) VALUES ($1, $2, $3, $4)',
-      [pessoa.cpfpessoa, salario || null, cargosIdCargo, porcentagemComissao || null]
+      'INSERT INTO funcionario (pessoacpfpessoa, salario, cargosidcargo, porcentagemcomissao, ativo) VALUES ($1, $2, $3, $4, $5)',
+      [pessoa.cpfpessoa, salario || null, cargosIdCargo, porcentagemComissao || null, true]
     );
   }
 

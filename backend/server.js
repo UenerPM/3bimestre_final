@@ -105,10 +105,17 @@ const imagemRoutes = require('./routes/imagemRoutes');
 app.use('/imagem', imagemRoutes);
 // rotas de pagamento
 try {
-  const pagamentoRoutes = require('./routes/pagamentoRoutes');
-  app.use('/pagamento', pagamentoRoutes);
+const pagamentoRoutes = require('./routes/pagamentoRoutes');
+app.use('/pagamento', pagamentoRoutes);
 } catch (e) {
   console.warn('Pagamento routes não registradas:', e.message || e);
+}
+// rotas de pagamentoHasFormaPagamento
+try {
+  const pagamentoHasFormaPagamentoRoutes = require('./routes/pagamentoHasFormaPagamentoRoutes');
+  app.use('/pagamentoHasFormaPagamento', pagamentoHasFormaPagamentoRoutes);
+} catch (e) {
+  console.warn('PagamentoHasFormaPagamento routes não registradas:', e.message || e);
 }
 // rotas de relatórios
 try {

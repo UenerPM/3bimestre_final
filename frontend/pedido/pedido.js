@@ -41,13 +41,15 @@ function mostrarMensagem(texto, tipo = 'info') {
     }, 3000);
 }
 
-function bloquearCampos(bloquearPrimeiro) {
+function bloquearCampos(desbloquear) {
     const inputs = document.querySelectorAll('input, select');
     inputs.forEach((input, index) => {
-        if (index === 0) {
-            input.disabled = bloquearPrimeiro;
+        if (input === searchId) {
+            // searchId sempre desabilitado durante edição (para não mudar o ID)
+            input.disabled = desbloquear;
         } else {
-            input.disabled = !bloquearPrimeiro;
+            // Outros campos habilitados quando desbloquear = true
+            input.disabled = !desbloquear;
         }
     });
 }
@@ -136,11 +138,11 @@ async function buscarPedido() {
 
 // Função para preencher formulário com dados do pedido
 function preencherFormulario(pedido) {
-    currentPedidoId = pedido.idPedido;
-    document.getElementById('idPedido').value = pedido.idPedido;
-    document.getElementById('dataDoPedido').value = pedido.dataDoPedido || '';
-    document.getElementById('ClientePessoaCpfPessoa').value = pedido.ClientePessoaCpfPessoa || '';
-    document.getElementById('FuncionarioPessoaCpfPessoa').value = pedido.FuncionarioPessoaCpfPessoa || '';
+    currentPedidoId = pedido.idpedido || pedido.idPedido;
+    document.getElementById('idPedido').value = pedido.idpedido || pedido.idPedido || '';
+    document.getElementById('dataDoPedido').value = pedido.datadopedido || pedido.dataDoPedido || '';
+    document.getElementById('ClientePessoaCpfPessoa').value = pedido.clientepessoacpfpessoa || pedido.ClientePessoaCpfPessoa || '';
+    document.getElementById('FuncionarioPessoaCpfPessoa').value = pedido.funcionariopessoacpfpessoa || pedido.FuncionarioPessoaCpfPessoa || '';
 }
 
 // Função para incluir pedido
@@ -178,7 +180,7 @@ async function excluirPedido() {
 async function salvarOperacao() {
     const formData = new FormData(form);
     const pedido = {
-        idPedido: searchId.value.trim(),
+        idpedido: searchId.value.trim(),
         dataDoPedido: formData.get('dataDoPedido') || '',
         ClientePessoaCpfPessoa: formData.get('ClientePessoaCpfPessoa') || '',
         FuncionarioPessoaCpfPessoa: formData.get('FuncionarioPessoaCpfPessoa') || ''

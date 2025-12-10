@@ -127,7 +127,6 @@ function preencherFormulario(f) {
 }
 
 function incluirForma() { 
-	if (!canIncludeForma) { mostrarMensagem('Busque antes para poder incluir', 'warning'); return; }
 	limparFormulario(); 
 	// habilita os campos para edição ao incluir
 	bloquearCampos(true);

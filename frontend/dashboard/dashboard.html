@@ -21,6 +21,25 @@
     <script src="/common/header.js" defer></script>
     
     <main>
+        <!-- Painel de Parâmetros do Relatório -->
+        <section>
+            <h2>Parâmetros do Relatório</h2>
+            <div class="card">
+                <form id="report-params-form" class="form-inline">
+                    <label for="param-start">Início:</label>
+                    <input type="date" id="param-start" name="startDate">
+
+                    <label for="param-end">Fim:</label>
+                    <input type="date" id="param-end" name="endDate">
+
+                    <label for="param-limit">Top produtos:</label>
+                    <input type="number" id="param-limit" name="limite" min="1" max="100" value="10">
+
+                    <button type="submit" class="btn btn-primary">Aplicar</button>
+                    <button type="button" id="btn-reset-params" class="btn">Reset</button>
+                </form>
+            </div>
+        </section>
         <!-- Resumo KPI -->
         <section>
             <h2>Resumo Geral</h2>
